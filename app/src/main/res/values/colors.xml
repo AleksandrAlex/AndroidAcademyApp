@@ -12,5 +12,6 @@
     <color name="gray">#6D6D80</color>
     <color name="title_white">#ECECEC</color>
     <color name="genre_text">#FF3466</color>
+    <color name="red_star">#FF3365</color>
 
 </resources>
