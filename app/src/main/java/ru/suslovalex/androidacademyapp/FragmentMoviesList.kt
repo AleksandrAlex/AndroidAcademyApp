@@ -9,8 +9,6 @@ import androidx.fragment.app.Fragment
 
 class FragmentMoviesList: Fragment() {
 
-    private var itemListener: ClickItemListener? = null
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -21,25 +19,11 @@ class FragmentMoviesList: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         view.findViewById<View>(R.id.item).setOnClickListener {
-            itemListener?.moveToMovieDetails()
+            activity?.supportFragmentManager
+                ?.beginTransaction()
+                ?.add(R.id.container_layout, FragmentMoviesDetails())
+                ?.addToBackStack(null)?.commit()
         }
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is ClickItemListener){
-            itemListener = context
-        }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        itemListener = null
-    }
-
-    interface ClickItemListener{
-        fun moveToMovieDetails()
     }
 }
