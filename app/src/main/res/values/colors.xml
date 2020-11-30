@@ -13,5 +13,7 @@
     <color name="title_white">#ECECEC</color>
     <color name="genre_text">#FF3466</color>
     <color name="red_star">#FF3365</color>
+    <color name="bacground_item">#222232</color>
+    <color name="item_board">#404056</color>
 
 </resources>

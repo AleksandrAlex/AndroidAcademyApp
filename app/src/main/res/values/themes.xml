@@ -17,4 +17,10 @@
     <style name="MyRatingBar" parent="Widget.AppCompat.RatingBar.Small">
 
     </style>
+
+    <style name="CustomRatingBar" parent="Widget.AppCompat.RatingBar">
+        <item name="android:progressDrawable">@drawable/custom_ratingbar</item>
+        <item name="minHeight">8dp</item>
+        <item name="maxHeight">8dp</item>
+    </style>
 </resources>
