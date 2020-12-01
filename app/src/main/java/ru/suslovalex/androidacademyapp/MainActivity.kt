@@ -13,7 +13,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initFragmentMoviesList() {
         supportFragmentManager.beginTransaction()
-            .replace(R.id.container_layout, FragmentMoviesList())
+            .add(R.id.container_layout, FragmentMoviesList())
             .commit()
     }
 }

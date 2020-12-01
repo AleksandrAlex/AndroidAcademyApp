@@ -22,7 +22,7 @@ class FragmentMoviesList: Fragment() {
         view.findViewById<View>(R.id.item).setOnClickListener {
             activity?.supportFragmentManager
                 ?.beginTransaction()
-                ?.add(R.id.container_layout, FragmentMoviesDetails())
+                ?.replace(R.id.container_layout, FragmentMoviesDetails())
                 ?.addToBackStack(null)?.commit()
         }
     }
