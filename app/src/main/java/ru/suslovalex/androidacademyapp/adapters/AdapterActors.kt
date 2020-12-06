@@ -10,9 +10,8 @@ import com.bumptech.glide.Glide
 import ru.suslovalex.androidacademyapp.R
 import ru.suslovalex.androidacademyapp.model.Actor
 
-class AdapterActors: RecyclerView.Adapter<ActorViewHolder>() {
+class AdapterActors(private var actors: List<Actor>): RecyclerView.Adapter<ActorViewHolder>() {
 
-    private var actors: List<Actor> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActorViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.view_holder_actor, parent, false)
@@ -27,9 +26,6 @@ class AdapterActors: RecyclerView.Adapter<ActorViewHolder>() {
         return actors.size
     }
 
-    fun setActors(newActors: List<Actor>){
-        actors = newActors
-    }
 }
 
 class ActorViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){

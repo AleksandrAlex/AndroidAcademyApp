@@ -33,19 +33,10 @@ class FragmentMoviesDetails : Fragment() {
     }
 
     private fun prepareAdapter() {
-        adapterActors = AdapterActors()
+        val  actors = getListActors()
+        adapterActors = AdapterActors(actors)
     }
-
-    override fun onStart() {
-        super.onStart()
-        updateActorsRecyclerView()
-    }
-
-    private fun updateActorsRecyclerView() {
-        adapterActors.setActors(getListActors())
-        adapterActors.notifyDataSetChanged()
-    }
-
+        
     private fun setupUI(view: View) {
         prepareViews(view)
         prepareActorRecyclerView(view)
