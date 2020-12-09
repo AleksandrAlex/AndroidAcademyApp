@@ -11,7 +11,7 @@ import ru.suslovalex.androidacademyapp.adapters.AdapterMovies
 import ru.suslovalex.androidacademyapp.adapters.MovieItemClickListener
 import ru.suslovalex.androidacademyapp.repository.getListMovies
 
-class FragmentMoviesList: Fragment() {
+class FragmentMoviesList : Fragment() {
 
     private lateinit var adapterMovies: AdapterMovies
 
@@ -27,26 +27,10 @@ class FragmentMoviesList: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val recycler: RecyclerView = view.findViewById(R.id.rv_moviesList)
-        adapterMovies = AdapterMovies(clickListener)
-        recycler.layoutManager = GridLayoutManager(view.context,2)
+        adapterMovies = AdapterMovies({ id -> doOnClick(id) }, getListMovies())
+        recycler.layoutManager = GridLayoutManager(view.context, 2)
         recycler.adapter = adapterMovies
         recycler.hasFixedSize()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        updateData()
-    }
-
-    private fun updateData() {
-        adapterMovies.setMovies(getListMovies())
-        adapterMovies.notifyDataSetChanged()
-    }
-
-    private val clickListener = object: MovieItemClickListener {
-        override fun onClick(id: Int) {
-            doOnClick(id)
-        }
     }
 
     private fun doOnClick(id: Int) {

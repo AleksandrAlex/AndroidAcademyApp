@@ -12,9 +12,8 @@ import com.bumptech.glide.Glide
 import ru.suslovalex.androidacademyapp.R
 import ru.suslovalex.androidacademyapp.model.Movie
 
-class AdapterMovies(private val clickListener: MovieItemClickListener) : RecyclerView.Adapter<MovieViewHolder>() {
-
-    private var movies: List<Movie> = mutableListOf()
+class AdapterMovies(private val adapterOnClick: (Int) -> Unit, private val movies: List<Movie>) :
+    RecyclerView.Adapter<MovieViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
         val view =
@@ -25,7 +24,7 @@ class AdapterMovies(private val clickListener: MovieItemClickListener) : Recycle
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
         holder.onBind(movies[position])
         holder.itemView.setOnClickListener {
-            clickListener.onClick(movies[position].id)
+            adapterOnClick(movies[position].id)
         }
     }
 
@@ -33,9 +32,6 @@ class AdapterMovies(private val clickListener: MovieItemClickListener) : Recycle
         return movies.size
     }
 
-    fun setMovies(newMovies: List<Movie>) {
-        movies = newMovies
-    }
 }
 
 class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -61,6 +57,6 @@ class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     }
 }
 
-interface MovieItemClickListener{
+interface MovieItemClickListener {
     fun onClick(id: Int)
 }
