@@ -10,9 +10,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.suslovalex.androidacademyapp.R
-import ru.suslovalex.androidacademyapp.model.Movie
+import ru.suslovalex.androidacademyapp.data.Movie
 
-class AdapterMovies(private val adapterOnClick: (Int) -> Unit, private val movies: List<Movie>) :
+
+class AdapterMovies(private val adapterOnClick: (Movie) -> Unit, private val movies: List<Movie>) :
     RecyclerView.Adapter<MovieViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
@@ -24,7 +25,7 @@ class AdapterMovies(private val adapterOnClick: (Int) -> Unit, private val movie
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
         holder.onBind(movies[position])
         holder.itemView.setOnClickListener {
-            adapterOnClick(movies[position].id)
+            adapterOnClick(movies[position])
         }
     }
 
@@ -38,8 +39,6 @@ class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     private val image: ImageView = itemView.findViewById(R.id.pic_movie)
     private val adult: TextView = itemView.findViewById(R.id.txt_age)
-
-    //    private val like:
     private val genre: TextView = itemView.findViewById(R.id.txt_genre)
     private val rating: RatingBar = itemView.findViewById(R.id.rating_movie)
     private val reviewers: TextView = itemView.findViewById(R.id.amount_review)
@@ -47,16 +46,33 @@ class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val timeLimit: TextView = itemView.findViewById(R.id.time_limit)
 
     fun onBind(movie: Movie) {
-        Glide.with(itemView.context).load(movie.image).into(image)
-        adult.text = movie.adult.toString()
-        genre.text = movie.genre
-        rating.rating = movie.rating
-        reviewers.text = movie.reviewers.toString()
+        Glide.with(itemView.context).load(movie.poster).into(image)
+        adult.text = getAgeForLabel(movie)
+        genre.text = getGenresForLabel(movie)
+        rating.rating = getRatingForLabel(movie)
+        reviewers.text = getRevForLabel(movie)
         title.text = movie.title
-        timeLimit.text = movie.timeLimit.toString()
+        timeLimit.text = getTimeForLabel(movie)
     }
-}
 
-interface MovieItemClickListener {
-    fun onClick(id: Int)
+    private fun getTimeForLabel(movie: Movie): String {
+        return "${movie.runtime} min"
+    }
+
+    private fun getRevForLabel(movie: Movie): String {
+        return "${movie.numberOfRatings} Reviews"
+    }
+
+    private fun getRatingForLabel(movie: Movie): Float {
+        return movie.ratings / 2
+    }
+
+    private fun getGenresForLabel(movie: Movie): String {
+        val genres = movie.genres.map { it.name }.toString()
+        return genres.subSequence(1, genres.length - 1).toString()
+    }
+
+    private fun getAgeForLabel(movie: Movie): String {
+        return "${movie.minimumAge}+"
+    }
 }
