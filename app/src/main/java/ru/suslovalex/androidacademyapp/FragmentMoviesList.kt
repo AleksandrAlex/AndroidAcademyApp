@@ -30,7 +30,7 @@ class FragmentMoviesList : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             getMovies()
             updateUI(view, movieList)
         }
@@ -40,8 +40,7 @@ class FragmentMoviesList : Fragment() {
         movieList = loadMovies(this@FragmentMoviesList.requireContext())
     }
 
-    private suspend fun updateUI(view: View, movieList: List<Movie>) =
-        withContext(Dispatchers.Main) {
+    private fun updateUI(view: View, movieList: List<Movie>) {
             val recycler: RecyclerView = view.findViewById(R.id.rv_moviesList)
             adapterMovies = AdapterMovies({ movie -> doOnClick(movie) }, movieList)
             recycler.layoutManager = GridLayoutManager(view.context, 2)
@@ -56,6 +55,5 @@ class FragmentMoviesList : Fragment() {
                 .addToBackStack(null)
                 .commit()
         }
-
     }
 }

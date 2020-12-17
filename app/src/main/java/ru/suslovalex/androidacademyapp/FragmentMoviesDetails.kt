@@ -1,7 +1,6 @@
 package ru.suslovalex.androidacademyapp
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +16,7 @@ import ru.suslovalex.androidacademyapp.data.Movie
 
 class FragmentMoviesDetails : Fragment() {
 
-    private lateinit var currentMovie: Movie
+    private  var currentMovie: Movie? = null
     private lateinit var adapterActors: AdapterActors
 
     override fun onCreateView(
@@ -28,17 +27,16 @@ class FragmentMoviesDetails : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
             getMovie()
             prepareAdapter()
             setupUI(view)
     }
 
     private fun prepareAdapter() {
-        val  actors = currentMovie.actors
+        val  actors = currentMovie?.actors ?: arrayListOf()
         adapterActors = AdapterActors(actors)
     }
-        
+
     private fun setupUI(view: View) {
         prepareViews(view)
         prepareActorRecyclerView(view)
@@ -59,7 +57,6 @@ class FragmentMoviesDetails : Fragment() {
     }
 
     private fun prepareViews(view: View) {
-        // When we receive a data we will put it to image
         val image: ImageView = view.findViewById(R.id.imageMovie)
         val adult: TextView = view.findViewById(R.id.adult_field)
         val title: TextView = view.findViewById(R.id.txt_title)
@@ -69,50 +66,37 @@ class FragmentMoviesDetails : Fragment() {
         val story: TextView = view.findViewById(R.id.story_text)
         val cast:TextView = view.findViewById(R.id.txt_cast)
 
-       
-
-
-        Glide.with(view).load(currentMovie.backdrop).into(image)
+        Glide.with(view).load(currentMovie?.backdrop).into(image)
         adult.text = getAgeForLabel(currentMovie)
-        title.text = currentMovie.title
+        title.text = currentMovie?.title
         genre.text = getGenresForLabel(currentMovie)
         rating.rating = getRatingForLabel(currentMovie)
         reviewers.text = getRevForLabel(currentMovie)
-        story.text = currentMovie.overview
-//        hasActors(view)
-        val actors = currentMovie.actors
-//        Log.d("Actors:", "$actors")
-        if (actors.isEmpty()){
+        story.text = currentMovie?.overview
+        val actors = currentMovie?.actors
+        actors?.let {
             cast.visibility = View.GONE
         }
-
-
     }
-
-//    private fun hasActors(view: View) {
-//        if (currentMovie.actors[0]==null ){
-//
-//        }
-//    }
 
     private fun getMovie() {
-        currentMovie = arguments?.getParcelable("movie")!!
+            currentMovie = arguments?.getParcelable("movie")
     }
 
-    private fun getAgeForLabel(movie: Movie): String {
-        return "${movie.minimumAge}+"
+    private fun getAgeForLabel(movie: Movie?): String {
+        return "${movie?.minimumAge}+"
     }
 
-    private fun getRevForLabel(movie: Movie): String {
-        return "${movie.numberOfRatings} Reviews"
+    private fun getRevForLabel(movie: Movie?): String {
+        return "${movie?.numberOfRatings} Reviews"
     }
 
-    private fun getRatingForLabel(movie: Movie): Float {
-        return movie.ratings / 2
+    private fun getRatingForLabel(movie: Movie?): Float {
+       return movie?.ratings ?: 0.0F
     }
 
-    private fun getGenresForLabel(movie: Movie): String {
-        val genres = movie.genres.map { it.name }.toString()
+    private fun getGenresForLabel(movie: Movie?): String {
+        val genres = movie?.genres?.map { it.name }.toString()
         return genres.subSequence(1, genres.length - 1).toString()
     }
 
