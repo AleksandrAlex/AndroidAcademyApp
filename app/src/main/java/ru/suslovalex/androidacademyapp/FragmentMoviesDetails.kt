@@ -66,16 +66,17 @@ class FragmentMoviesDetails : Fragment() {
         val story: TextView = view.findViewById(R.id.story_text)
         val cast:TextView = view.findViewById(R.id.txt_cast)
 
-        Glide.with(view).load(currentMovie?.backdrop).into(image)
-        adult.text = getAgeForLabel(currentMovie)
-        title.text = currentMovie?.title
-        genre.text = getGenresForLabel(currentMovie)
-        rating.rating = getRatingForLabel(currentMovie)
-        reviewers.text = getRevForLabel(currentMovie)
-        story.text = currentMovie?.overview
-        val actors = currentMovie?.actors
-        actors?.let {
-            cast.visibility = View.GONE
+        currentMovie?.let {
+            Glide.with(view).load(it.backdrop).into(image)
+            adult.text = getAgeForLabel(it)
+            title.text = it.title
+            genre.text = getGenresForLabel(it)
+            rating.rating = getRatingForLabel(it)
+            reviewers.text = getRevForLabel(it)
+            story.text = it.overview
+            if (it.actors.isEmpty()){
+                cast.visibility = View.GONE
+            }
         }
     }
 
@@ -83,20 +84,20 @@ class FragmentMoviesDetails : Fragment() {
             currentMovie = arguments?.getParcelable("movie")
     }
 
-    private fun getAgeForLabel(movie: Movie?): String {
-        return "${movie?.minimumAge}+"
+    private fun getAgeForLabel(movie: Movie): String {
+        return "${movie.minimumAge}+"
     }
 
-    private fun getRevForLabel(movie: Movie?): String {
-        return "${movie?.numberOfRatings} Reviews"
+    private fun getRevForLabel(movie: Movie): String {
+        return "${movie.numberOfRatings} Reviews"
     }
 
-    private fun getRatingForLabel(movie: Movie?): Float {
-       return movie?.ratings ?: 0.0F
+    private fun getRatingForLabel(movie: Movie): Float {
+       return movie.ratings
     }
 
-    private fun getGenresForLabel(movie: Movie?): String {
-        val genres = movie?.genres?.map { it.name }.toString()
+    private fun getGenresForLabel(movie: Movie): String {
+        val genres = movie.genres.map { it.name }.toString()
         return genres.subSequence(1, genres.length - 1).toString()
     }
 
