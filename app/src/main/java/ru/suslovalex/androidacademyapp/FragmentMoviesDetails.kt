@@ -93,7 +93,7 @@ class FragmentMoviesDetails : Fragment() {
     }
 
     private fun getRatingForLabel(movie: Movie): Float {
-       return movie.ratings
+       return movie.ratings /2
     }
 
     private fun getGenresForLabel(movie: Movie): String {
