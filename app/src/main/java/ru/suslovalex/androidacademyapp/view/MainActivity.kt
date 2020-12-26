@@ -1,7 +1,8 @@
-package ru.suslovalex.androidacademyapp
+package ru.suslovalex.androidacademyapp.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import ru.suslovalex.androidacademyapp.R
 
 class MainActivity : AppCompatActivity() {
 

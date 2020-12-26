@@ -1,23 +1,26 @@
-package ru.suslovalex.androidacademyapp
+package ru.suslovalex.androidacademyapp.view
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.*
+import ru.suslovalex.androidacademyapp.R
 import ru.suslovalex.androidacademyapp.adapters.AdapterMovies
 import ru.suslovalex.androidacademyapp.data.Movie
-import ru.suslovalex.androidacademyapp.data.loadMovies
+import ru.suslovalex.androidacademyapp.viewmodel.MoviesListViewModel
 
 
 class FragmentMoviesList : Fragment() {
 
     private lateinit var adapterMovies: AdapterMovies
-    private lateinit var movieList: List<Movie>
+    private lateinit var moviesListViewModel: MoviesListViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,14 +33,13 @@ class FragmentMoviesList : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        moviesListViewModel = ViewModelProvider(this).get(MoviesListViewModel::class.java)
         lifecycleScope.launch {
-            getMovies()
-            updateUI(view, movieList)
+            moviesListViewModel.getMovies(this@FragmentMoviesList.requireContext())
+            moviesListViewModel.movieList.observe(this@FragmentMoviesList, Observer {
+                updateUI(view, it)
+            })
         }
-    }
-
-    private suspend fun getMovies() = withContext(Dispatchers.IO){
-        movieList = loadMovies(this@FragmentMoviesList.requireContext())
     }
 
     private fun updateUI(view: View, movieList: List<Movie>) {

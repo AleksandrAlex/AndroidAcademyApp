@@ -1,4 +1,4 @@
-package ru.suslovalex.androidacademyapp
+package ru.suslovalex.androidacademyapp.view
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,16 +8,23 @@ import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import ru.suslovalex.androidacademyapp.R
 import ru.suslovalex.androidacademyapp.adapters.AdapterActors
 import ru.suslovalex.androidacademyapp.data.Movie
+import ru.suslovalex.androidacademyapp.viewmodel.MoviesDetailsViewModel
+import ru.suslovalex.androidacademyapp.viewmodel.MoviesDetailsViewModelProviderFactory
 
 
 class FragmentMoviesDetails : Fragment() {
 
-    private  var currentMovie: Movie? = null
+    private var currentMovie: Movie? = null
     private lateinit var adapterActors: AdapterActors
+    private lateinit var moviesDetailsViewModel: MoviesDetailsViewModel
+    private lateinit var moviesDetailsViewModelProviderFactory: MoviesDetailsViewModelProviderFactory
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,19 +34,33 @@ class FragmentMoviesDetails : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-            getMovie()
-            prepareAdapter()
-            setupUI(view)
+
+        initViewModel()
+        observeMovieState(view)
+        setupUI(view)
     }
 
-    private fun prepareAdapter() {
-        val  actors = currentMovie?.actors ?: arrayListOf()
+    private fun observeMovieState(view: View) {
+        moviesDetailsViewModel.movie.observe(this, Observer {movie ->
+            prepareActorsRecyclerView(view, movie)
+        })
+    }
+
+    private fun prepareActorsRecyclerView(view: View, movie: Movie) {
+        val actors = movie.actors
         adapterActors = AdapterActors(actors)
+        val actorRecyclerView: RecyclerView = view.findViewById(R.id.rv_actorList)
+        actorRecyclerView.adapter = adapterActors
+    }
+
+    private fun initViewModel() {
+        moviesDetailsViewModelProviderFactory = MoviesDetailsViewModelProviderFactory(getMovie())
+        moviesDetailsViewModel = ViewModelProvider(this, moviesDetailsViewModelProviderFactory)
+            .get(MoviesDetailsViewModel::class.java)
     }
 
     private fun setupUI(view: View) {
         prepareViews(view)
-        prepareActorRecyclerView(view)
         initBackBottom(view)
     }
 
@@ -51,11 +72,6 @@ class FragmentMoviesDetails : Fragment() {
         }
     }
 
-    private fun prepareActorRecyclerView(view: View) {
-        val actorRecyclerView: RecyclerView = view.findViewById(R.id.rv_actorList)
-        actorRecyclerView.adapter = adapterActors
-    }
-
     private fun prepareViews(view: View) {
         val image: ImageView = view.findViewById(R.id.imageMovie)
         val adult: TextView = view.findViewById(R.id.adult_field)
@@ -64,7 +80,7 @@ class FragmentMoviesDetails : Fragment() {
         val rating: RatingBar = view.findViewById(R.id.rating_movie)
         val reviewers: TextView = view.findViewById(R.id.amount_review)
         val story: TextView = view.findViewById(R.id.story_text)
-        val cast:TextView = view.findViewById(R.id.txt_cast)
+        val cast: TextView = view.findViewById(R.id.txt_cast)
 
         currentMovie?.let {
             Glide.with(view).load(it.backdrop).into(image)
@@ -74,14 +90,15 @@ class FragmentMoviesDetails : Fragment() {
             rating.rating = getRatingForLabel(it)
             reviewers.text = getRevForLabel(it)
             story.text = it.overview
-            if (it.actors.isEmpty()){
+            if (it.actors.isEmpty()) {
                 cast.visibility = View.GONE
             }
         }
     }
 
-    private fun getMovie() {
-            currentMovie = arguments?.getParcelable("movie")
+    private fun getMovie(): Movie {
+         currentMovie = arguments?.getParcelable("movie")
+        return currentMovie !!
     }
 
     private fun getAgeForLabel(movie: Movie): String {
@@ -93,7 +110,7 @@ class FragmentMoviesDetails : Fragment() {
     }
 
     private fun getRatingForLabel(movie: Movie): Float {
-       return movie.ratings /2
+        return movie.ratings / 2
     }
 
     private fun getGenresForLabel(movie: Movie): String {
