@@ -7,24 +7,27 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ru.suslovalex.androidacademyapp.R
 import ru.suslovalex.androidacademyapp.adapters.AdapterActors
 import ru.suslovalex.androidacademyapp.data.Movie
-import ru.suslovalex.androidacademyapp.viewmodel.MoviesDetailsViewModel
-import ru.suslovalex.androidacademyapp.viewmodel.MoviesDetailsViewModelProviderFactory
+import ru.suslovalex.androidacademyapp.viewmodel.*
 
 
 class FragmentMoviesDetails : Fragment() {
 
     private var currentMovie: Movie? = null
     private lateinit var adapterActors: AdapterActors
-    private lateinit var moviesDetailsViewModel: MoviesDetailsViewModel
-    private lateinit var moviesDetailsViewModelProviderFactory: MoviesDetailsViewModelProviderFactory
+    private val moviesDetailsViewModel: MoviesDetailsViewModel by viewModels { MovieDetailsViewModelProviderFactory() }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,15 +38,24 @@ class FragmentMoviesDetails : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initViewModel()
-        observeMovieState(view)
-        setupUI(view)
-    }
 
-    private fun observeMovieState(view: View) {
-        moviesDetailsViewModel.movie.observe(this, Observer {movie ->
-            prepareActorsRecyclerView(view, movie)
-        })
+        lifecycleScope.launch(Dispatchers.Main) {
+            getMovie()
+            currentMovie?.let { moviesDetailsViewModel.setMovie(it) }
+            moviesDetailsViewModel.state.observe(viewLifecycleOwner, Observer { state ->
+                when (state) {
+                    is State.Loading -> showLoader()
+                    is State.Error -> showError()
+                    is State.Success -> {
+                        hideLoader()
+                    }
+                }
+            })
+            moviesDetailsViewModel.movie.observe(viewLifecycleOwner, Observer { movie ->
+                prepareActorsRecyclerView(view, movie)
+            })
+            setupUI(view)
+        }
     }
 
     private fun prepareActorsRecyclerView(view: View, movie: Movie) {
@@ -51,12 +63,6 @@ class FragmentMoviesDetails : Fragment() {
         adapterActors = AdapterActors(actors)
         val actorRecyclerView: RecyclerView = view.findViewById(R.id.rv_actorList)
         actorRecyclerView.adapter = adapterActors
-    }
-
-    private fun initViewModel() {
-        moviesDetailsViewModelProviderFactory = MoviesDetailsViewModelProviderFactory(getMovie())
-        moviesDetailsViewModel = ViewModelProvider(this, moviesDetailsViewModelProviderFactory)
-            .get(MoviesDetailsViewModel::class.java)
     }
 
     private fun setupUI(view: View) {
@@ -96,9 +102,8 @@ class FragmentMoviesDetails : Fragment() {
         }
     }
 
-    private fun getMovie(): Movie {
+    private fun getMovie(){
          currentMovie = arguments?.getParcelable("movie")
-        return currentMovie !!
     }
 
     private fun getAgeForLabel(movie: Movie): String {
@@ -116,6 +121,18 @@ class FragmentMoviesDetails : Fragment() {
     private fun getGenresForLabel(movie: Movie): String {
         val genres = movie.genres.map { it.name }.toString()
         return genres.subSequence(1, genres.length - 1).toString()
+    }
+
+    private fun hideLoader() {
+        Toast.makeText(this.requireContext(), "Hide Loader!", Toast.LENGTH_LONG).show()
+    }
+
+    private fun showError() {
+        Toast.makeText(this.requireContext(), "Show Error!", Toast.LENGTH_LONG).show()
+    }
+
+    private fun showLoader() {
+        Toast.makeText(this.requireContext(), "Show Loader!", Toast.LENGTH_LONG).show()
     }
 
     companion object {
