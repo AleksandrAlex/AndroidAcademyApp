@@ -11,31 +11,27 @@ import ru.suslovalex.androidacademyapp.domain.MovieResponseResult
 
 class MoviesListViewModel(private val checker: MovieChecker) : ViewModel() {
 
-    private val _movieList = MutableLiveData<List<Movie>>()
-    val movieList: LiveData<List<Movie>>
-        get() = _movieList
-
-    private val _state = MutableLiveData<State>()
-    val state: LiveData<State>
+    private val _state = MutableLiveData<MoviesListState>()
+    val moviesListState: LiveData<MoviesListState>
         get() = _state
 
-    suspend fun getMovies(context: Context) = viewModelScope.launch(Dispatchers.IO) {
-        _state.postValue(State.Loading())
+
+    fun getMovies(context: Context) = viewModelScope.launch(Dispatchers.IO) {
+        _state.postValue(MoviesListState.Loading)
         val movies = loadMovies(context)
         val checkResult = checker.loadMoviesList(movies)
         val newState = when (checkResult) {
             is MovieResponseResult.Success -> {
-                _movieList.postValue(movies)
-                State.Success()
+                MoviesListState.Success(movies)
             }
-            is MovieResponseResult.Error -> State.Error()
+            is MovieResponseResult.Error -> MoviesListState.Error("Error!")
         }
         _state.postValue(newState)
     }
 }
 
-sealed class State {
-    class Error() : State()
-    class Loading() : State()
-    class Success() : State()
+sealed class MoviesListState {
+    data class Error(val errorMessage: String) : MoviesListState()
+    object Loading : MoviesListState()
+    data class Success(val movies: List<Movie>) : MoviesListState()
 }

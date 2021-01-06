@@ -1,6 +1,7 @@
 package ru.suslovalex.androidacademyapp.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,12 +12,9 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.android.synthetic.main.fragment_movies_details.*
 import ru.suslovalex.androidacademyapp.R
 import ru.suslovalex.androidacademyapp.adapters.AdapterActors
 import ru.suslovalex.androidacademyapp.data.Movie
@@ -25,7 +23,6 @@ import ru.suslovalex.androidacademyapp.viewmodel.*
 
 class FragmentMoviesDetails : Fragment() {
 
-    private var currentMovie: Movie? = null
     private lateinit var adapterActors: AdapterActors
     private val moviesDetailsViewModel: MoviesDetailsViewModel by viewModels { MovieDetailsViewModelProviderFactory() }
 
@@ -38,24 +35,19 @@ class FragmentMoviesDetails : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-        lifecycleScope.launch(Dispatchers.Main) {
-            getMovie()
-            currentMovie?.let { moviesDetailsViewModel.setMovie(it) }
+            arguments?.let { moviesDetailsViewModel.getMovie(it) }
             moviesDetailsViewModel.state.observe(viewLifecycleOwner, Observer { state ->
                 when (state) {
-                    is State.Loading -> showLoader()
-                    is State.Error -> showError()
-                    is State.Success -> {
-                        hideLoader()
+                    is MoviesDetailsState.Success ->{
+                        prepareActorsRecyclerView(view, state.movie)
+                        setupUI(view, state.movie)
+                        hideProgressbar()
                     }
+                    is MoviesDetailsState.Error -> showError(state.errorMessage)
+                    is MoviesDetailsState.Loading -> showProgressbar()
                 }
             })
-            moviesDetailsViewModel.movie.observe(viewLifecycleOwner, Observer { movie ->
-                prepareActorsRecyclerView(view, movie)
-            })
-            setupUI(view)
-        }
+
     }
 
     private fun prepareActorsRecyclerView(view: View, movie: Movie) {
@@ -65,8 +57,8 @@ class FragmentMoviesDetails : Fragment() {
         actorRecyclerView.adapter = adapterActors
     }
 
-    private fun setupUI(view: View) {
-        prepareViews(view)
+    private fun setupUI(view: View, currentMovie: Movie) {
+        prepareViews(view, currentMovie)
         initBackBottom(view)
     }
 
@@ -78,7 +70,7 @@ class FragmentMoviesDetails : Fragment() {
         }
     }
 
-    private fun prepareViews(view: View) {
+    private fun prepareViews(view: View, currentMovie: Movie) {
         val image: ImageView = view.findViewById(R.id.imageMovie)
         val adult: TextView = view.findViewById(R.id.adult_field)
         val title: TextView = view.findViewById(R.id.txt_title)
@@ -88,7 +80,7 @@ class FragmentMoviesDetails : Fragment() {
         val story: TextView = view.findViewById(R.id.story_text)
         val cast: TextView = view.findViewById(R.id.txt_cast)
 
-        currentMovie?.let {
+        currentMovie.let {
             Glide.with(view).load(it.backdrop).into(image)
             adult.text = getAgeForLabel(it)
             title.text = it.title
@@ -100,10 +92,6 @@ class FragmentMoviesDetails : Fragment() {
                 cast.visibility = View.GONE
             }
         }
-    }
-
-    private fun getMovie(){
-         currentMovie = arguments?.getParcelable("movie")
     }
 
     private fun getAgeForLabel(movie: Movie): String {
@@ -123,16 +111,16 @@ class FragmentMoviesDetails : Fragment() {
         return genres.subSequence(1, genres.length - 1).toString()
     }
 
-    private fun hideLoader() {
-        Toast.makeText(this.requireContext(), "Hide Loader!", Toast.LENGTH_LONG).show()
+    private fun hideProgressbar() {
+        progress_bar_detailsMovie?.visibility = View.GONE
     }
 
-    private fun showError() {
-        Toast.makeText(this.requireContext(), "Show Error!", Toast.LENGTH_LONG).show()
+    private fun showError(errorMessage: String) {
+        Toast.makeText(this.requireContext(), errorMessage, Toast.LENGTH_LONG).show()
     }
 
-    private fun showLoader() {
-        Toast.makeText(this.requireContext(), "Show Loader!", Toast.LENGTH_LONG).show()
+    private fun showProgressbar() {
+        progress_bar_detailsMovie?.visibility = View.VISIBLE
     }
 
     companion object {

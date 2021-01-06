@@ -1,6 +1,8 @@
 package ru.suslovalex.androidacademyapp.view
 
 import android.os.Bundle
+import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,10 +10,9 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.fragment_movies_list.*
 import kotlinx.coroutines.*
 import ru.suslovalex.androidacademyapp.R
 import ru.suslovalex.androidacademyapp.adapters.AdapterMovies
@@ -35,36 +36,37 @@ class FragmentMoviesList : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        lifecycleScope.launch(Dispatchers.Main) {
+
             moviesListViewModel.getMovies(this@FragmentMoviesList.requireContext())
-            moviesListViewModel.movieList.observe(viewLifecycleOwner, Observer {
-                updateUI(view, it)
-            })
-            moviesListViewModel.state.observe(viewLifecycleOwner, Observer { state ->
+            moviesListViewModel.moviesListState.observe(viewLifecycleOwner, Observer { state ->
                 when (state) {
-                    is State.Loading -> showLoader()
-                    is State.Error -> showError()
-                    is State.Success -> {
-                        hideLoader()
+                    is MoviesListState.Success -> {
+                        hideProgressbar()
+                        setupUI(view, state.movies)
+                        Log.d("MyMovies", state.movies.map { it.title }.toString())
                     }
+                    is MoviesListState.Error ->
+                        showError(state.errorMessage)
+
+                    is MoviesListState.Loading ->
+                        showProgressbar()
                 }
             })
-        }
     }
 
-    private fun hideLoader() {
-        Toast.makeText(this.requireContext(), "Hide Loader!", Toast.LENGTH_LONG).show()
+    private fun hideProgressbar() {
+        progress_bar.visibility = View.INVISIBLE
     }
 
-    private fun showError() {
-        Toast.makeText(this.requireContext(), "Show Error!", Toast.LENGTH_LONG).show()
+    private fun showError(errorMessage: String) {
+        Toast.makeText(this.requireContext(), errorMessage, Toast.LENGTH_LONG).show()
     }
 
-    private fun showLoader() {
-        Toast.makeText(this.requireContext(), "Show Loader!", Toast.LENGTH_LONG).show()
+    private fun showProgressbar() {
+        progress_bar.visibility = View.VISIBLE
     }
 
-    private fun updateUI(view: View, movieList: List<Movie>) {
+    private fun setupUI(view: View, movieList: List<Movie>) {
         val recycler: RecyclerView = view.findViewById(R.id.rv_moviesList)
         adapterMovies = AdapterMovies({ movie -> doOnClick(movie) }, movieList)
         recycler.layoutManager = GridLayoutManager(view.context, 2)
