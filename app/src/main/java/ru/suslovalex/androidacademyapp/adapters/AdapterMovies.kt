@@ -32,7 +32,6 @@ class AdapterMovies(private val adapterOnClick: (Movie) -> Unit, private val mov
     override fun getItemCount(): Int {
         return movies.size
     }
-
 }
 
 class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
