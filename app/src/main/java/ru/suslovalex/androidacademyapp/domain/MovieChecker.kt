@@ -1,18 +1,19 @@
 package ru.suslovalex.androidacademyapp.domain
 
-import ru.suslovalex.androidacademyapp.data.Movie
+import ru.suslovalex.androidacademyapp.data.MoviesResponse
+import ru.suslovalex.androidacademyapp.data.Result
 
 class MovieChecker{
 
-    fun loadMoviesList(movies: List<Movie>): MovieResponseResult {
-        return if (movies.isEmpty()){
+    fun loadMoviesList(moviesResponse: MoviesResponse): MovieResponseResult {
+        return if (moviesResponse.results.isEmpty()){
             MovieResponseResult.Error
         } else{
             MovieResponseResult.Success
         }
     }
 
-    fun loadMovie(movie: Movie?): MovieResponseResult {
+    fun loadMovie(movie: Result?): MovieResponseResult {
         return if (movie==null){
             MovieResponseResult.Error
         } else{
