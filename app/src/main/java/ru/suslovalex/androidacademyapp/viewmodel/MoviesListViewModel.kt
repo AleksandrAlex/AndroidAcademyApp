@@ -2,48 +2,45 @@ package ru.suslovalex.androidacademyapp.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import ru.suslovalex.androidacademyapp.repository.Repository
-import ru.suslovalex.androidacademyapp.data.GenreResponse
-import ru.suslovalex.androidacademyapp.data.MoviesResponse
+import ru.suslovalex.androidacademyapp.data.Movie
+import ru.suslovalex.androidacademyapp.repository.MoviesRepository
 import ru.suslovalex.androidacademyapp.domain.MovieChecker
 import ru.suslovalex.androidacademyapp.domain.MovieResponseResult
-import ru.suslovalex.androidacademyapp.retrofit.RetrofitInstance
 
-class MoviesListViewModel(private val checker: MovieChecker, private val repository: Repository) : ViewModel() {
+class MoviesListViewModel(private val checker: MovieChecker, private val moviesRepository: MoviesRepository) :
+    ViewModel() {
 
     private val _state = MutableLiveData<MoviesListState>()
     val moviesListState: LiveData<MoviesListState>
         get() = _state
 
-    private lateinit var genreResponse: GenreResponse
 
     init {
-        getGenres()
-        getPopularMovies()
+            loadGenres()
+            loadUpcomingMovies()
     }
 
-    private fun getPopularMovies() = viewModelScope.launch(Dispatchers.IO) {
+    private fun loadUpcomingMovies() = viewModelScope.launch {
         _state.postValue(MoviesListState.Loading)
-        val moviesResponse = repository.getUpcomingMovies()
-        val newState = when (checker.loadMoviesList(moviesResponse)) {
+        val movies = moviesRepository.loadUpcomingMovies()
+        val newState = when (checker.loadMoviesList(movies)) {
             MovieResponseResult.Success -> {
-                MoviesListState.Success(moviesResponse)
+                MoviesListState.Success(movies)
             }
             MovieResponseResult.Error -> MoviesListState.Error("Error!")
         }
         _state.postValue(newState)
     }
 
-    private fun getGenres() = viewModelScope.launch (Dispatchers.IO){
-        genreResponse = RetrofitInstance.movieApi.getGenres()
-        Log.d("GENRES ", genreResponse.genres.toString())
+    private fun loadGenres() = viewModelScope.launch {
+        val genreResponse = moviesRepository.loadGenres()
+        Log.d("GENRES ", genreResponse.toString())
     }
 }
 
 sealed class MoviesListState {
     data class Error(val errorMessage: String) : MoviesListState()
     object Loading : MoviesListState()
-    data class Success(val moviesResponse: MoviesResponse) : MoviesListState()
+    data class Success(val movies: List<Movie>) : MoviesListState()
 }

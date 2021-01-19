@@ -17,7 +17,9 @@ import kotlinx.android.synthetic.main.fragment_movies_details.*
 import ru.suslovalex.androidacademyapp.R
 import ru.suslovalex.androidacademyapp.adapters.AdapterActors
 import ru.suslovalex.androidacademyapp.data.Actor
+import ru.suslovalex.androidacademyapp.data.Movie
 import ru.suslovalex.androidacademyapp.data.Result
+import ru.suslovalex.androidacademyapp.retrofit.MoviesApi.Companion.BASE_IMAGE_URL
 import ru.suslovalex.androidacademyapp.viewmodel.*
 
 
@@ -39,7 +41,7 @@ class FragmentMoviesDetails : Fragment() {
             moviesDetailsViewModel.state.observe(viewLifecycleOwner, Observer { state ->
                 when (state) {
                     is MoviesDetailsState.Success ->{
-                        prepareActorsRecyclerView(view, state.movie)
+                        prepareActorsRecyclerView(view, state.movie.actors)
                         setupUI(view, state.movie)
                         hideProgressbar()
                     }
@@ -50,14 +52,13 @@ class FragmentMoviesDetails : Fragment() {
 
     }
 
-    private fun prepareActorsRecyclerView(view: View, movie: Result) {
-        val actors = emptyList<Actor>()
+    private fun prepareActorsRecyclerView(view: View, actors: List<Actor>) {
         adapterActors = AdapterActors(actors)
         val actorRecyclerView: RecyclerView = view.findViewById(R.id.rv_actorList)
         actorRecyclerView.adapter = adapterActors
     }
 
-    private fun setupUI(view: View, currentMovie: Result) {
+    private fun setupUI(view: View, currentMovie: Movie) {
         prepareViews(view, currentMovie)
         initBackBottom(view)
     }
@@ -70,7 +71,7 @@ class FragmentMoviesDetails : Fragment() {
         }
     }
 
-    private fun prepareViews(view: View, currentMovie: Result) {
+    private fun prepareViews(view: View, currentMovie: Movie) {
         val image: ImageView = view.findViewById(R.id.imageMovie)
         val adult: TextView = view.findViewById(R.id.adult_field)
         val title: TextView = view.findViewById(R.id.txt_title)
@@ -80,9 +81,12 @@ class FragmentMoviesDetails : Fragment() {
         val story: TextView = view.findViewById(R.id.story_text)
         val cast: TextView = view.findViewById(R.id.txt_cast)
 
-        val startImagePath = "https://image.tmdb.org/t/p/w500"
+        if (currentMovie.actors.isEmpty()){
+            cast.visibility = View.GONE
+        }
+
         val endImagePath = currentMovie.backdropPath
-        val path = startImagePath+endImagePath
+        val path = BASE_IMAGE_URL+endImagePath
 
         currentMovie.let {
             Glide.with(view).load(path).into(image)
@@ -92,27 +96,24 @@ class FragmentMoviesDetails : Fragment() {
             rating.rating = getRatingForLabel(it)
             reviewers.text = getRevForLabel(it)
             story.text = it.overview
-//            if (it.actors.isEmpty()) {
-//                cast.visibility = View.GONE
-//            }
         }
     }
 
-    private fun getAgeForLabel(movie: Result): String {
-        return movie.adult.toString()
+    private fun getAgeForLabel(movie: Movie): String {
+        return movie.adult
     }
 
-    private fun getRevForLabel(movie: Result): String {
+    private fun getRevForLabel(movie: Movie): String {
         return "${movie.voteCount} Reviews"
     }
 
-    private fun getRatingForLabel(movie: Result): Float {
+    private fun getRatingForLabel(movie: Movie): Float {
         val rating = movie.voteAverage.toFloat()
         return rating/2
     }
 
-    private fun getGenresForLabel(movie: Result): String {
-        return movie.genreIds.toString()
+    private fun getGenresForLabel(movie: Movie): String {
+        return movie.genres.map { it.name }.joinToString { it }
     }
 
     private fun hideProgressbar() {
@@ -128,7 +129,7 @@ class FragmentMoviesDetails : Fragment() {
     }
 
     companion object {
-        fun newInstance(movie: Result): FragmentMoviesDetails {
+        fun newInstance(movie: Movie): FragmentMoviesDetails {
             val args = Bundle()
             args.putParcelable("movie", movie)
             val fragment = FragmentMoviesDetails()

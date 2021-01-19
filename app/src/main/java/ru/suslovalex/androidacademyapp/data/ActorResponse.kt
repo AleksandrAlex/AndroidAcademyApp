@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GenreResponse(
-    val genres: List<Genre>
+data class ActorResponse(
+    val id: Int,
+    val cast: List<Cast>,
+    val crew: List<Crew>
 )

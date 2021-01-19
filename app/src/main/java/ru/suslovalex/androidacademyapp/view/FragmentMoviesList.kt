@@ -1,7 +1,6 @@
 package ru.suslovalex.androidacademyapp.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_movies_list.*
 import ru.suslovalex.androidacademyapp.R
 import ru.suslovalex.androidacademyapp.adapters.AdapterMovies
-import ru.suslovalex.androidacademyapp.data.MoviesResponse
+import ru.suslovalex.androidacademyapp.data.Movie
 import ru.suslovalex.androidacademyapp.data.Result
 import ru.suslovalex.androidacademyapp.viewmodel.*
 
@@ -39,7 +38,7 @@ class FragmentMoviesList : Fragment() {
                 when (state) {
                     is MoviesListState.Success -> {
                         hideProgressbar()
-                        setupUI(view, state.moviesResponse)
+                        setupUI(view, state.movies)
                     }
                     is MoviesListState.Error ->
                         showError(state.errorMessage)
@@ -62,15 +61,15 @@ class FragmentMoviesList : Fragment() {
         progress_bar.visibility = View.VISIBLE
     }
 
-    private fun setupUI(view: View, moviesResponse: MoviesResponse) {
+    private fun setupUI(view: View, movies: List<Movie>) {
         val recycler: RecyclerView = view.findViewById(R.id.rv_moviesList)
-        adapterMovies = AdapterMovies({ movie -> doOnClick(movie) }, moviesResponse)
+        adapterMovies = AdapterMovies({ movie -> doOnClick(movie) }, movies)
         recycler.layoutManager = GridLayoutManager(view.context, 2)
         recycler.adapter = adapterMovies
         recycler.hasFixedSize()
     }
 
-    private fun doOnClick(movie: Result) {
+    private fun doOnClick(movie: Movie) {
         activity?.let {
             it.supportFragmentManager.beginTransaction()
                 .replace(R.id.container_layout, FragmentMoviesDetails.newInstance(movie))

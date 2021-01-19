@@ -34,7 +34,7 @@ class ActorViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
     private val name: TextView = itemView.findViewById(R.id.actor_name)
 
     fun onBind(actor: Actor){
-        Glide.with(itemView).load(actor.picture).into(image)
+        Glide.with(itemView).load(actor.actorImage).into(image)
         name.text = actor.name
     }
 }
