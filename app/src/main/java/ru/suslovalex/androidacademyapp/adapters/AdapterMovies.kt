@@ -56,11 +56,11 @@ class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         rating.rating = getRatingForLabel(movie)
         reviewers.text = getRevForLabel(movie)
         title.text = movie.title
-        timeLimit.text = getReleaseDateToLabel(movie)
+        timeLimit.text = getRuntime(movie)
     }
 
-    private fun getReleaseDateToLabel(movie: Movie): String {
-        return movie.releaseDate
+    private fun getRuntime(movie: Movie): String {
+        return "${movie.runtime} min"
     }
 
     private fun getRevForLabel(movie: Movie): String {

@@ -49,7 +49,7 @@ class MoviesRepository {
                 voteCount = movie.voteCount,
                 actors = loadActors(movieID = movie.id.toLong()),
                 genres = movie.genreIds.map {
-                    genresMap[it] ?: throw IllegalArgumentException("Genre not found")
+                    genresMap[it] ?: Genre(0, "Empty genre...")
                 }
             )
         }
