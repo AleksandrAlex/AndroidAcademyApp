@@ -18,7 +18,6 @@ import ru.suslovalex.androidacademyapp.R
 import ru.suslovalex.androidacademyapp.adapters.AdapterActors
 import ru.suslovalex.androidacademyapp.data.Actor
 import ru.suslovalex.androidacademyapp.data.Movie
-import ru.suslovalex.androidacademyapp.data.Result
 import ru.suslovalex.androidacademyapp.retrofit.MoviesApi.Companion.BASE_IMAGE_URL
 import ru.suslovalex.androidacademyapp.viewmodel.*
 
@@ -41,25 +40,29 @@ class FragmentMoviesDetails : Fragment() {
             moviesDetailsViewModel.state.observe(viewLifecycleOwner, Observer { state ->
                 when (state) {
                     is MoviesDetailsState.Success ->{
-                        prepareActorsRecyclerView(view, state.movie.actors)
+                        prepareActorsRecyclerView(view)
                         setupUI(view, state.movie)
+                        updateActorRecyclerView(state.movie.actors)
                         hideProgressbar()
                     }
                     is MoviesDetailsState.Error -> showError(state.errorMessage)
                     is MoviesDetailsState.Loading -> showProgressbar()
                 }
             })
-
     }
 
-    private fun prepareActorsRecyclerView(view: View, actors: List<Actor>) {
-        adapterActors = AdapterActors(actors)
+    private fun prepareActorsRecyclerView(view: View) {
+        adapterActors = AdapterActors()
         val actorRecyclerView: RecyclerView = view.findViewById(R.id.rv_actorList)
         actorRecyclerView.adapter = adapterActors
     }
 
+    private fun updateActorRecyclerView(actors: List<Actor>){
+        adapterActors.submitList(actors)
+    }
+
     private fun setupUI(view: View, currentMovie: Movie) {
-        prepareViews(view, currentMovie)
+        initViews(view, currentMovie)
         initBackBottom(view)
     }
 
@@ -71,7 +74,7 @@ class FragmentMoviesDetails : Fragment() {
         }
     }
 
-    private fun prepareViews(view: View, currentMovie: Movie) {
+    private fun initViews(view: View, currentMovie: Movie) {
         val image: ImageView = view.findViewById(R.id.imageMovie)
         val adult: TextView = view.findViewById(R.id.adult_field)
         val title: TextView = view.findViewById(R.id.txt_title)

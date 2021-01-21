@@ -16,10 +16,10 @@ data class Result(
     @SerialName("genre_ids")
     val genreIds: List<Int>,
     val id: Int,
-    @SerialName("original_language")
-    val originalLanguage: String,
-    @SerialName("original_title")
-    val originalTitle: String,
+//    @SerialName("original_language")
+//    val originalLanguage: String,
+//    @SerialName("original_title")
+//    val originalTitle: String,
     val overview: String,
     val popularity: Double,
     @SerialName("poster_path")

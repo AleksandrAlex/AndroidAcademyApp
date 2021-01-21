@@ -63,10 +63,11 @@ class FragmentMoviesList : Fragment() {
 
     private fun setupUI(view: View, movies: List<Movie>) {
         val recycler: RecyclerView = view.findViewById(R.id.rv_moviesList)
-        adapterMovies = AdapterMovies({ movie -> doOnClick(movie) }, movies)
+        adapterMovies = AdapterMovies { movie -> doOnClick(movie) }
         recycler.layoutManager = GridLayoutManager(view.context, 2)
         recycler.adapter = adapterMovies
-        recycler.hasFixedSize()
+        adapterMovies.submitList(movies)
+        adapterMovies.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
     }
 
     private fun doOnClick(movie: Movie) {

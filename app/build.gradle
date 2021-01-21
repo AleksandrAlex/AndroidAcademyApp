@@ -68,5 +68,7 @@ dependencies {
     implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
 
+    implementation "androidx.recyclerview:recyclerview:1.2.0-beta01"
+
 
 }

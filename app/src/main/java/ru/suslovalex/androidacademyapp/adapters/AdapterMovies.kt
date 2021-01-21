@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.suslovalex.androidacademyapp.R
@@ -14,8 +16,8 @@ import ru.suslovalex.androidacademyapp.data.Movie
 import ru.suslovalex.androidacademyapp.retrofit.MoviesApi.Companion.BASE_IMAGE_URL
 
 
-class AdapterMovies(private val adapterOnClick: (Movie) -> Unit, private val movies: List<Movie>) :
-    RecyclerView.Adapter<MovieViewHolder>() {
+class AdapterMovies(private val adapterOnClick: (Movie) -> Unit) :
+    ListAdapter<Movie, MovieViewHolder>(MovieDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
         val view =
@@ -24,14 +26,10 @@ class AdapterMovies(private val adapterOnClick: (Movie) -> Unit, private val mov
     }
 
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
-        holder.onBind(movies[position])
+        holder.onBind(getItem(position))
         holder.itemView.setOnClickListener {
-            adapterOnClick(movies[position])
+            adapterOnClick(getItem(position))
         }
-    }
-
-    override fun getItemCount(): Int {
-        return movies.size
     }
 }
 
@@ -79,4 +77,15 @@ class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private fun getAgeForLabel(movie: Movie): String {
         return movie.adult
     }
+}
+
+class MovieDiffUtil: DiffUtil.ItemCallback<Movie>(){
+    override fun areItemsTheSame(oldItem: Movie, newItem: Movie): Boolean {
+       return oldItem.id == newItem.id
+    }
+
+    override fun areContentsTheSame(oldItem: Movie, newItem: Movie): Boolean {
+        return oldItem == newItem
+    }
+
 }
