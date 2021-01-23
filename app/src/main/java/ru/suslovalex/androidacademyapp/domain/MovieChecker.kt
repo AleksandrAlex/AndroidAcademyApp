@@ -1,6 +1,7 @@
 package ru.suslovalex.androidacademyapp.domain
 
 import ru.suslovalex.androidacademyapp.data.Movie
+import ru.suslovalex.androidacademyapp.data.Result
 
 class MovieChecker{
 

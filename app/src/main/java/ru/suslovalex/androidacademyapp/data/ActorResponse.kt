@@ -1,14 +1,11 @@
 package ru.suslovalex.androidacademyapp.data
 
 
-import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
-import kotlinx.android.parcel.Parcelize
 import kotlinx.serialization.Serializable
 
 @Serializable
-@Parcelize
-data class Genre(
+data class ActorResponse(
     val id: Int,
-    val name: String
-): Parcelable
+    val cast: List<Cast>
+)

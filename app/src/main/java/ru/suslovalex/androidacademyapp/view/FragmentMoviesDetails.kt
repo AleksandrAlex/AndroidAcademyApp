@@ -1,7 +1,6 @@
 package ru.suslovalex.androidacademyapp.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +16,9 @@ import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.fragment_movies_details.*
 import ru.suslovalex.androidacademyapp.R
 import ru.suslovalex.androidacademyapp.adapters.AdapterActors
+import ru.suslovalex.androidacademyapp.data.Actor
 import ru.suslovalex.androidacademyapp.data.Movie
+import ru.suslovalex.androidacademyapp.retrofit.MoviesApi.Companion.BASE_IMAGE_URL
 import ru.suslovalex.androidacademyapp.viewmodel.*
 
 
@@ -39,26 +40,29 @@ class FragmentMoviesDetails : Fragment() {
             moviesDetailsViewModel.state.observe(viewLifecycleOwner, Observer { state ->
                 when (state) {
                     is MoviesDetailsState.Success ->{
-                        prepareActorsRecyclerView(view, state.movie)
+                        prepareActorsRecyclerView(view)
                         setupUI(view, state.movie)
+                        updateActorRecyclerView(state.movie.actors)
                         hideProgressbar()
                     }
                     is MoviesDetailsState.Error -> showError(state.errorMessage)
                     is MoviesDetailsState.Loading -> showProgressbar()
                 }
             })
-
     }
 
-    private fun prepareActorsRecyclerView(view: View, movie: Movie) {
-        val actors = movie.actors
-        adapterActors = AdapterActors(actors)
+    private fun prepareActorsRecyclerView(view: View) {
+        adapterActors = AdapterActors()
         val actorRecyclerView: RecyclerView = view.findViewById(R.id.rv_actorList)
         actorRecyclerView.adapter = adapterActors
     }
 
+    private fun updateActorRecyclerView(actors: List<Actor>){
+        adapterActors.submitList(actors)
+    }
+
     private fun setupUI(view: View, currentMovie: Movie) {
-        prepareViews(view, currentMovie)
+        initViews(view, currentMovie)
         initBackBottom(view)
     }
 
@@ -70,7 +74,7 @@ class FragmentMoviesDetails : Fragment() {
         }
     }
 
-    private fun prepareViews(view: View, currentMovie: Movie) {
+    private fun initViews(view: View, currentMovie: Movie) {
         val image: ImageView = view.findViewById(R.id.imageMovie)
         val adult: TextView = view.findViewById(R.id.adult_field)
         val title: TextView = view.findViewById(R.id.txt_title)
@@ -80,35 +84,39 @@ class FragmentMoviesDetails : Fragment() {
         val story: TextView = view.findViewById(R.id.story_text)
         val cast: TextView = view.findViewById(R.id.txt_cast)
 
+        if (currentMovie.actors.isEmpty()){
+            cast.visibility = View.GONE
+        }
+
+        val endImagePath = currentMovie.backdropPath
+        val path = BASE_IMAGE_URL+endImagePath
+
         currentMovie.let {
-            Glide.with(view).load(it.backdrop).into(image)
+            Glide.with(view).load(path).into(image)
             adult.text = getAgeForLabel(it)
             title.text = it.title
             genre.text = getGenresForLabel(it)
             rating.rating = getRatingForLabel(it)
             reviewers.text = getRevForLabel(it)
             story.text = it.overview
-            if (it.actors.isEmpty()) {
-                cast.visibility = View.GONE
-            }
         }
     }
 
     private fun getAgeForLabel(movie: Movie): String {
-        return "${movie.minimumAge}+"
+        return movie.adult
     }
 
     private fun getRevForLabel(movie: Movie): String {
-        return "${movie.numberOfRatings} Reviews"
+        return "${movie.voteCount} Reviews"
     }
 
     private fun getRatingForLabel(movie: Movie): Float {
-        return movie.ratings / 2
+        val rating = movie.voteAverage.toFloat()
+        return rating/2
     }
 
     private fun getGenresForLabel(movie: Movie): String {
-        val genres = movie.genres.map { it.name }.toString()
-        return genres.subSequence(1, genres.length - 1).toString()
+        return movie.genres.map { it.name }.joinToString { it }
     }
 
     private fun hideProgressbar() {

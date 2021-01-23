@@ -1,8 +1,6 @@
 package ru.suslovalex.androidacademyapp.view
 
 import android.os.Bundle
-import android.os.Handler
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,10 +11,10 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_movies_list.*
-import kotlinx.coroutines.*
 import ru.suslovalex.androidacademyapp.R
 import ru.suslovalex.androidacademyapp.adapters.AdapterMovies
 import ru.suslovalex.androidacademyapp.data.Movie
+import ru.suslovalex.androidacademyapp.data.Result
 import ru.suslovalex.androidacademyapp.viewmodel.*
 
 
@@ -36,14 +34,11 @@ class FragmentMoviesList : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-            moviesListViewModel.getMovies(this@FragmentMoviesList.requireContext())
             moviesListViewModel.moviesListState.observe(viewLifecycleOwner, Observer { state ->
                 when (state) {
                     is MoviesListState.Success -> {
                         hideProgressbar()
                         setupUI(view, state.movies)
-                        Log.d("MyMovies", state.movies.map { it.title }.toString())
                     }
                     is MoviesListState.Error ->
                         showError(state.errorMessage)
@@ -66,18 +61,20 @@ class FragmentMoviesList : Fragment() {
         progress_bar.visibility = View.VISIBLE
     }
 
-    private fun setupUI(view: View, movieList: List<Movie>) {
+    private fun setupUI(view: View, movies: List<Movie>) {
         val recycler: RecyclerView = view.findViewById(R.id.rv_moviesList)
-        adapterMovies = AdapterMovies({ movie -> doOnClick(movie) }, movieList)
+        adapterMovies = AdapterMovies { movie -> doOnClick(movie) }
         recycler.layoutManager = GridLayoutManager(view.context, 2)
         recycler.adapter = adapterMovies
-        recycler.hasFixedSize()
+        adapterMovies.submitList(movies)
+        adapterMovies.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
     }
 
     private fun doOnClick(movie: Movie) {
         activity?.let {
             it.supportFragmentManager.beginTransaction()
                 .replace(R.id.container_layout, FragmentMoviesDetails.newInstance(movie))
+//                .replace(R.id.container_layout, FragmentMoviesDetails())
                 .addToBackStack(null)
                 .commit()
         }

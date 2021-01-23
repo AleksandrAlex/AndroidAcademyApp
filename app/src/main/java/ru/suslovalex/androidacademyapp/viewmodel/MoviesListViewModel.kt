@@ -1,32 +1,41 @@
 package ru.suslovalex.androidacademyapp.viewmodel
 
-import android.content.Context
+import android.util.Log
 import androidx.lifecycle.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.suslovalex.androidacademyapp.data.Movie
-import ru.suslovalex.androidacademyapp.data.loadMovies
+import ru.suslovalex.androidacademyapp.repository.MoviesRepository
 import ru.suslovalex.androidacademyapp.domain.MovieChecker
 import ru.suslovalex.androidacademyapp.domain.MovieResponseResult
 
-class MoviesListViewModel(private val checker: MovieChecker) : ViewModel() {
+class MoviesListViewModel(private val checker: MovieChecker, private val moviesRepository: MoviesRepository) :
+    ViewModel() {
 
     private val _state = MutableLiveData<MoviesListState>()
     val moviesListState: LiveData<MoviesListState>
         get() = _state
 
 
-    fun getMovies(context: Context) = viewModelScope.launch(Dispatchers.IO) {
+    init {
+            loadGenres()
+            loadUpcomingMovies()
+    }
+
+    private fun loadUpcomingMovies() = viewModelScope.launch {
         _state.postValue(MoviesListState.Loading)
-        val movies = loadMovies(context)
-        val checkResult = checker.loadMoviesList(movies)
-        val newState = when (checkResult) {
-            is MovieResponseResult.Success -> {
+        val movies = moviesRepository.loadUpcomingMovies()
+        val newState = when (checker.loadMoviesList(movies)) {
+            MovieResponseResult.Success -> {
                 MoviesListState.Success(movies)
             }
-            is MovieResponseResult.Error -> MoviesListState.Error("Error!")
+            MovieResponseResult.Error -> MoviesListState.Error("Error!")
         }
         _state.postValue(newState)
+    }
+
+    private fun loadGenres() = viewModelScope.launch {
+        val genreResponse = moviesRepository.loadGenres()
+        Log.d("GENRES ", genreResponse.toString())
     }
 }
 
