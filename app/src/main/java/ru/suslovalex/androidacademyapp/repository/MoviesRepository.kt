@@ -4,15 +4,18 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.suslovalex.androidacademyapp.data.*
+import ru.suslovalex.androidacademyapp.data.entity.GenreEntity
+import ru.suslovalex.androidacademyapp.db.MoviesDao
+import ru.suslovalex.androidacademyapp.db.MoviesDatabase
 import ru.suslovalex.androidacademyapp.retrofit.MoviesApi.Companion.BASE_IMAGE_URL
 import ru.suslovalex.androidacademyapp.retrofit.RemoteDataStore
 
 
-class MoviesRepository {
+class MoviesRepository(val remoteDataStore: RemoteDataStore) {
 
-    private val remoteDataStore = RemoteDataStore
 
     suspend fun loadGenres(): List<Genre> = withContext(Dispatchers.IO) {
+
         return@withContext remoteDataStore.getGenres().genres.map {
             Genre(
                 id = it.id,

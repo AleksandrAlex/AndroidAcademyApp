@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'org.jetbrains.kotlin.plugin.serialization'
     id 'kotlin-android-extensions'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -69,6 +70,19 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
 
     implementation "androidx.recyclerview:recyclerview:1.2.0-beta01"
+
+    //Room
+    implementation "androidx.room:room-runtime:2.2.6"
+    kapt "androidx.room:room-compiler:2.2.6"
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation "androidx.room:room-ktx:2.2.6"
+    // optional - Test helpers
+    testImplementation "androidx.room:room-testing:2.2.6"
+
+    // Koin for Android
+    implementation "org.koin:koin-android:2.2.2"
+    implementation "org.koin:koin-android-scope:2.2.2"
+    implementation "org.koin:koin-android-viewmodel:2.2.2"
 
 
 }
