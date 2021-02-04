@@ -7,8 +7,8 @@ import ru.suslovalex.androidacademyapp.db.MovieDBContract
 @Entity(tableName = MovieDBContract.ACTORS_TABLE_NAME)
 data class ActorEntity(
     @PrimaryKey(autoGenerate = false)
-    val id: Int,
+    val id: Long,
     val name: String,
-    val actorImage: String,
-    val movieId: Int
+    val actorImage: String?,
+    val movieId: Long
 )

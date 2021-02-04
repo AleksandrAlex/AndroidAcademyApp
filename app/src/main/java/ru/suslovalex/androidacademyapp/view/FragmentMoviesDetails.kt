@@ -9,11 +9,11 @@ import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.fragment_movies_details.*
+import org.koin.android.viewmodel.ext.android.viewModel
 import ru.suslovalex.androidacademyapp.R
 import ru.suslovalex.androidacademyapp.adapters.AdapterActors
 import ru.suslovalex.androidacademyapp.data.Actor
@@ -25,7 +25,7 @@ import ru.suslovalex.androidacademyapp.viewmodel.*
 class FragmentMoviesDetails : Fragment() {
 
     private lateinit var adapterActors: AdapterActors
-    private val moviesDetailsViewModel: MoviesDetailsViewModel by viewModels { MovieDetailsViewModelProviderFactory() }
+    private val moviesDetailsViewModel: MoviesDetailsViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,19 +36,20 @@ class FragmentMoviesDetails : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-            arguments?.let { moviesDetailsViewModel.getMovie(it) }
-            moviesDetailsViewModel.state.observe(viewLifecycleOwner, Observer { state ->
-                when (state) {
-                    is MoviesDetailsState.Success ->{
-                        prepareActorsRecyclerView(view)
-                        setupUI(view, state.movie)
-                        updateActorRecyclerView(state.movie.actors)
-                        hideProgressbar()
-                    }
-                    is MoviesDetailsState.Error -> showError(state.errorMessage)
-                    is MoviesDetailsState.Loading -> showProgressbar()
+        prepareActorsRecyclerView(view)
+
+        arguments?.let { moviesDetailsViewModel.getMovie(it) }
+        moviesDetailsViewModel.state.observe(viewLifecycleOwner, Observer { state ->
+            when (state) {
+                is MoviesDetailsState.Success -> {
+                    setupUI(view, state.movie)
+                    updateActorRecyclerView(state.movie.actors)
+                    hideProgressbar()
                 }
-            })
+                is MoviesDetailsState.Error -> showError(state.errorMessage)
+                is MoviesDetailsState.Loading -> showProgressbar()
+            }
+        })
     }
 
     private fun prepareActorsRecyclerView(view: View) {
@@ -57,7 +58,7 @@ class FragmentMoviesDetails : Fragment() {
         actorRecyclerView.adapter = adapterActors
     }
 
-    private fun updateActorRecyclerView(actors: List<Actor>){
+    private fun updateActorRecyclerView(actors: List<Actor>) {
         adapterActors.submitList(actors)
     }
 
@@ -84,12 +85,12 @@ class FragmentMoviesDetails : Fragment() {
         val story: TextView = view.findViewById(R.id.story_text)
         val cast: TextView = view.findViewById(R.id.txt_cast)
 
-        if (currentMovie.actors.isEmpty()){
+        if (currentMovie.actors.isEmpty()) {
             cast.visibility = View.GONE
         }
 
         val endImagePath = currentMovie.backdropPath
-        val path = BASE_IMAGE_URL+endImagePath
+        val path = BASE_IMAGE_URL + endImagePath
 
         currentMovie.let {
             Glide.with(view).load(path).into(image)
@@ -112,7 +113,7 @@ class FragmentMoviesDetails : Fragment() {
 
     private fun getRatingForLabel(movie: Movie): Float {
         val rating = movie.voteAverage.toFloat()
-        return rating/2
+        return rating / 2
     }
 
     private fun getGenresForLabel(movie: Movie): String {
@@ -120,7 +121,7 @@ class FragmentMoviesDetails : Fragment() {
     }
 
     private fun hideProgressbar() {
-        progress_bar_detailsMovie?.visibility = View.GONE
+        progress_bar_detailsMovie?.visibility = View.INVISIBLE
     }
 
     private fun showError(errorMessage: String) {

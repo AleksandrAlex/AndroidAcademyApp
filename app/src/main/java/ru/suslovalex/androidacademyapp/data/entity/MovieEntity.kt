@@ -9,15 +9,15 @@ import ru.suslovalex.androidacademyapp.db.MovieDBContract
 )
 data class MovieEntity(
     @PrimaryKey(autoGenerate = false)
-    val id: Int,
+    val id: Long,
     val adult: Boolean,
     val backdropPath: String,
     val overview: String,
-    val popularity: Double,
+//    val popularity: Double,
     val posterPath: String,
     val releaseDate: String,
     val title: String,
-    val video: Boolean,
+//    val video: Boolean,
     val voteAverage: Double,
     val voteCount: Int,
     val runtime: Int

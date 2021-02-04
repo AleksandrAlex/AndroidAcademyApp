@@ -27,6 +27,8 @@ abstract class MoviesDatabase : RoomDatabase() {
                 context.applicationContext,
                 MoviesDatabase::class.java,
                 MovieDBContract.MOVIE_DB_NAME
-            ).build()
+            )
+                .fallbackToDestructiveMigration()
+                .build()
     }
 }

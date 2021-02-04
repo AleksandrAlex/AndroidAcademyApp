@@ -15,7 +15,7 @@ data class Result(
     val backdropPath: String,
     @SerialName("genre_ids")
     val genreIds: List<Int>,
-    val id: Int,
+    val id: Long,
 //    @SerialName("original_language")
 //    val originalLanguage: String,
 //    @SerialName("original_title")

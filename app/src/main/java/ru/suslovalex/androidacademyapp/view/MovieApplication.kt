@@ -9,6 +9,7 @@ import ru.suslovalex.androidacademyapp.db.MoviesDatabase
 import ru.suslovalex.androidacademyapp.domain.MovieChecker
 import ru.suslovalex.androidacademyapp.repository.MoviesRepository
 import ru.suslovalex.androidacademyapp.retrofit.RemoteDataStore
+import ru.suslovalex.androidacademyapp.viewmodel.MoviesDetailsViewModel
 import ru.suslovalex.androidacademyapp.viewmodel.MoviesListViewModel
 
 class MovieApplication: Application() {
@@ -17,11 +18,12 @@ class MovieApplication: Application() {
         super.onCreate()
 
         val movieListModule = module {
-//            single { MoviesDatabase }
+            single { MoviesDatabase(get()) }
             single { MovieChecker() }
             single { RemoteDataStore() }
-            single { MoviesRepository(get()) }
+            single { MoviesRepository(get(), get()) }
             viewModel { MoviesListViewModel(get(), get()) }
+            viewModel { MoviesDetailsViewModel(get()) }
         }
 
         startKoin{

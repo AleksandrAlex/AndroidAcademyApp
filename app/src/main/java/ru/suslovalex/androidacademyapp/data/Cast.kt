@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 data class Cast(
 //    val adult: Boolean,
 //    val gender: Int,
-    val id: Int,
+    val id: Long,
 //    @SerialName("known_for_department")
 //    val knownForDepartment: String,
     val name: String,

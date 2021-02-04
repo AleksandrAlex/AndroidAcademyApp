@@ -15,6 +15,8 @@ interface MoviesApi {
         const val API_KEY = "40efb58f57f8571c97c5a073353ebb32"
         const val BASE_IMAGE_URL = "https://image.tmdb.org/t/p/w500"
        // https://image.tmdb.org/t/p/w500/xu1l9WmNY1XYZyJ3M2gvGqCCDGS.jpg
+        //https://api.themoviedb.org/3/genre/movie/list?api_key=40efb58f57f8571c97c5a073353ebb32&language=ru-RU
+        //https://api.themoviedb.org/3/movie/464052/credits?api_key=40efb58f57f8571c97c5a073353ebb32&language=ru-RU
     }
 
     @GET("movie/popular?&language=en-US&page=1")

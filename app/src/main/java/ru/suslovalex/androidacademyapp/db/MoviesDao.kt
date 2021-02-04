@@ -1,12 +1,12 @@
 package ru.suslovalex.androidacademyapp.db
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import ru.suslovalex.androidacademyapp.data.entity.ActorEntity
 import ru.suslovalex.androidacademyapp.data.entity.GenreEntity
 import ru.suslovalex.androidacademyapp.data.entity.MovieEntity
+import ru.suslovalex.androidacademyapp.data.entity.relation.MovieWithActors
+import ru.suslovalex.androidacademyapp.data.entity.relation.MovieWithActorsAndGenres
+import ru.suslovalex.androidacademyapp.data.entity.relation.MovieWithGenres
 
 @Dao
 interface MoviesDao {
@@ -19,9 +19,18 @@ interface MoviesDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertGenres(movies: List<GenreEntity>)
 
-    @Query("SELECT * FROM table_movies ORDER BY voteAverage DESC")
-    suspend fun getAllMovies(): List<MovieEntity>
+    @Transaction
+    @Query("SELECT * FROM table_movies")
+    suspend fun getMovies(): List<MovieWithActorsAndGenres>
 
-    @Query("SELECT * FROM genreentity ")
-    suspend fun getAllGenres(): List<GenreEntity>
+    @Query("DELETE FROM table_movies")
+    suspend fun deleteTableMovies()
+
+    @Query("DELETE FROM table_genres")
+    suspend fun deleteTableGenres()
+
+    @Query("DELETE FROM table_actors")
+    suspend fun deleteTableActors()
+
+
 }
