@@ -8,13 +8,18 @@ import ru.suslovalex.androidacademyapp.data.entity.ActorEntity
 import ru.suslovalex.androidacademyapp.data.entity.GenreEntity
 import ru.suslovalex.androidacademyapp.data.entity.MovieEntity
 import ru.suslovalex.androidacademyapp.data.entity.relation.MovieWithActorsAndGenres
+import ru.suslovalex.androidacademyapp.db.MoviesDao
 import ru.suslovalex.androidacademyapp.db.MoviesDatabase
 import ru.suslovalex.androidacademyapp.retrofit.MoviesApi.Companion.BASE_IMAGE_URL
 import ru.suslovalex.androidacademyapp.retrofit.RemoteDataStore
 
 
-class MoviesRepository(val remoteDataStore: RemoteDataStore, val moviesDatabase: MoviesDatabase) {
+class MoviesRepository(
+    private val remoteDataStore: RemoteDataStore,
+    private val moviesDataBase: MoviesDatabase
+) {
 
+    private val moviesDao = moviesDataBase.moviesDao
 
     suspend fun loadGenres(): List<Genre> = withContext(Dispatchers.IO) {
 
@@ -28,7 +33,11 @@ class MoviesRepository(val remoteDataStore: RemoteDataStore, val moviesDatabase:
 
     private suspend fun loadActors(movieID: Long): List<Actor> = withContext(Dispatchers.IO) {
         val actors = remoteDataStore.getActors(movieID).cast.map { actor ->
-            Actor(id = actor.id, name = actor.name, actorImage = if(actor.profilePath != null) BASE_IMAGE_URL + actor.profilePath else null)
+            Actor(
+                id = actor.id,
+                name = actor.name,
+                actorImage = if (actor.profilePath != null) BASE_IMAGE_URL + actor.profilePath else null
+            )
         }
         Log.d("Actors ", actors.toString())
         return@withContext actors
@@ -41,7 +50,7 @@ class MoviesRepository(val remoteDataStore: RemoteDataStore, val moviesDatabase:
     @Suppress("TYPE_INFERENCE_ONLY_INPUT_TYPES_WARNING")
     suspend fun loadUpcomingMovies(): List<Movie> = withContext(Dispatchers.IO) {
         val genres = loadGenres()
-        Log.d("Genres: ","$genres")
+        Log.d("Genres: ", "$genres")
         val genresMap = genres.associateBy { it.id }
 
         val movies = remoteDataStore.getUpcomingMovies().results.map { movie ->
@@ -75,42 +84,42 @@ class MoviesRepository(val remoteDataStore: RemoteDataStore, val moviesDatabase:
                 )
             }
         }
-        moviesDatabase.moviesDao().insertGenres(genresEntity)
+        moviesDao.insertGenres(genresEntity)
     }
 
-        private suspend fun saveActorsToDataBase(movies: List<Movie>) = withContext(Dispatchers.IO) {
-            val actorEntity = movies.flatMap { movie ->
-                movie.actors.map { actor ->
-                    ActorEntity(
-                        id = actor.id,
-                        name = actor.name,
-                        actorImage = actor.actorImage,
-                        movieId = movie.id
-                    )
-                }
-            }
-            moviesDatabase.moviesDao().insertActors(actorEntity)
-        }
-
-        private suspend fun saveMoviesToDatabase(movies: List<Movie>) = withContext(Dispatchers.IO) {
-            val movieEntity = movies.map { movie ->
-                MovieEntity(
-                    id = movie.id,
-                    adult = movie.adult == "16+",
-                    backdropPath = movie.backdropPath,
-                    overview = movie.overview,
-                    posterPath = movie.posterPath,
-                    releaseDate = movie.releaseDate,
-                    title = movie.title,
-                    voteAverage = movie.voteAverage,
-                    voteCount = movie.voteCount,
-                    runtime = movie.runtime
+    private suspend fun saveActorsToDataBase(movies: List<Movie>) = withContext(Dispatchers.IO) {
+        val actorEntity = movies.flatMap { movie ->
+            movie.actors.map { actor ->
+                ActorEntity(
+                    id = actor.id,
+                    name = actor.name,
+                    actorImage = actor.actorImage,
+                    movieId = movie.id
                 )
             }
-            moviesDatabase.moviesDao().insertMovies(movieEntity)
         }
+        moviesDao.insertActors(actorEntity)
+    }
 
-    suspend fun saveDatesToDatabase(movies: List<Movie>) = withContext(Dispatchers.IO){
+    private suspend fun saveMoviesToDatabase(movies: List<Movie>) = withContext(Dispatchers.IO) {
+        val movieEntity = movies.map { movie ->
+            MovieEntity(
+                id = movie.id,
+                adult = movie.adult == "16+",
+                backdropPath = movie.backdropPath,
+                overview = movie.overview,
+                posterPath = movie.posterPath,
+                releaseDate = movie.releaseDate,
+                title = movie.title,
+                voteAverage = movie.voteAverage,
+                voteCount = movie.voteCount,
+                runtime = movie.runtime
+            )
+        }
+        moviesDao.insertMovies(movieEntity)
+    }
+
+    suspend fun saveDatesToDatabase(movies: List<Movie>) = withContext(Dispatchers.IO) {
         saveMoviesToDatabase(movies)
         saveGenresToDatabase(movies)
         saveActorsToDataBase(movies)
@@ -122,10 +131,10 @@ class MoviesRepository(val remoteDataStore: RemoteDataStore, val moviesDatabase:
         return convertDataToMovies(listMoviesWithActorsAndGenres)
     }
 
-    suspend fun deleteAllDatabase() = withContext(Dispatchers.IO){
-        moviesDatabase.moviesDao().deleteTableMovies()
-        moviesDatabase.moviesDao().deleteTableGenres()
-        moviesDatabase.moviesDao().deleteTableActors()
+    suspend fun deleteAllDatabase() = withContext(Dispatchers.IO) {
+        moviesDao.deleteTableMovies()
+        moviesDao.deleteTableGenres()
+        moviesDao.deleteTableActors()
     }
 
     private fun convertDataToMovies(listMoviesWithActorsAndGenres: List<MovieWithActorsAndGenres>): List<Movie> {
@@ -166,8 +175,8 @@ class MoviesRepository(val remoteDataStore: RemoteDataStore, val moviesDatabase:
         }
     }
 
-    private suspend fun getMoviesFromDatabase()  = withContext(Dispatchers.IO){
-        moviesDatabase.moviesDao().getMovies()
+    private suspend fun getMoviesFromDatabase() = withContext(Dispatchers.IO) {
+        moviesDao.getMovies()
     }
 }
 

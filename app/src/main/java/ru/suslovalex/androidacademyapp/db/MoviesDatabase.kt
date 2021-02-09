@@ -10,7 +10,7 @@ import ru.suslovalex.androidacademyapp.data.entity.MovieEntity
 
 @Database(entities = [MovieEntity::class, GenreEntity::class, ActorEntity::class], version = 1, exportSchema = false)
 abstract class MoviesDatabase : RoomDatabase() {
-    abstract fun moviesDao(): MoviesDao
+    abstract val moviesDao: MoviesDao
 
     companion object {
         @Volatile

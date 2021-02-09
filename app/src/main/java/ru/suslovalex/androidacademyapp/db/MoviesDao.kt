@@ -4,9 +4,7 @@ import androidx.room.*
 import ru.suslovalex.androidacademyapp.data.entity.ActorEntity
 import ru.suslovalex.androidacademyapp.data.entity.GenreEntity
 import ru.suslovalex.androidacademyapp.data.entity.MovieEntity
-import ru.suslovalex.androidacademyapp.data.entity.relation.MovieWithActors
 import ru.suslovalex.androidacademyapp.data.entity.relation.MovieWithActorsAndGenres
-import ru.suslovalex.androidacademyapp.data.entity.relation.MovieWithGenres
 
 @Dao
 interface MoviesDao {

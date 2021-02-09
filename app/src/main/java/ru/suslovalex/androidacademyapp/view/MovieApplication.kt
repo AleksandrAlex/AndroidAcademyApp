@@ -5,6 +5,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import ru.suslovalex.androidacademyapp.db.MoviesDao
 import ru.suslovalex.androidacademyapp.db.MoviesDatabase
 import ru.suslovalex.androidacademyapp.domain.MovieChecker
 import ru.suslovalex.androidacademyapp.repository.MoviesRepository
@@ -18,17 +19,23 @@ class MovieApplication: Application() {
         super.onCreate()
 
         val movieListModule = module {
-            single { MoviesDatabase(get()) }
-            single { MovieChecker() }
-            single { RemoteDataStore() }
-            single { MoviesRepository(get(), get()) }
             viewModel { MoviesListViewModel(get(), get()) }
+        }
+
+        val movieDetailModule = module {
             viewModel { MoviesDetailsViewModel(get()) }
+        }
+
+        val appModule = module {
+            single { MoviesDatabase(get()) }
+            single { RemoteDataStore() }
+            single { MovieChecker() }
+            single { MoviesRepository(get(), get()) }
         }
 
         startKoin{
             androidContext(this@MovieApplication)
-            modules(movieListModule)
+            modules(movieListModule, movieDetailModule, appModule)
         }
     }
 }
