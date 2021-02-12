@@ -26,7 +26,7 @@ class AdapterMovies(private val adapterOnClick: (Movie) -> Unit) :
     }
 
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
-        holder.onBind(getItem(position))
+        holder.bind(getItem(position))
         holder.itemView.setOnClickListener {
             adapterOnClick(getItem(position))
         }
@@ -43,8 +43,7 @@ class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val title: TextView = itemView.findViewById(R.id.txt_title)
     private val timeLimit: TextView = itemView.findViewById(R.id.time_limit)
 
-    fun onBind(movie: Movie) {
-
+    fun bind(movie: Movie) {
         val endImagePath = movie.posterPath
         val path = BASE_IMAGE_URL+endImagePath
 

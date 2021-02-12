@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.suslovalex.androidacademyapp.data.Movie
-import ru.suslovalex.androidacademyapp.data.Result
 import ru.suslovalex.androidacademyapp.domain.MovieChecker
 import ru.suslovalex.androidacademyapp.domain.MovieResponseResult
 

@@ -1,18 +1,9 @@
 package ru.suslovalex.androidacademyapp.retrofit
 
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import kotlinx.serialization.json.Json
-import okhttp3.Interceptor
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Response
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
+
 import retrofit2.http.GET
 import retrofit2.http.Path
 import ru.suslovalex.androidacademyapp.data.*
-import ru.suslovalex.androidacademyapp.retrofit.MoviesApi.Companion.API_KEY
-import ru.suslovalex.androidacademyapp.retrofit.MoviesApi.Companion.BASE_URL
 
 
 //https://api.themoviedb.org/3/movie/popular?api_key=40efb58f57f8571c97c5a073353ebb32&language=en-US&page=1
@@ -24,6 +15,8 @@ interface MoviesApi {
         const val API_KEY = "40efb58f57f8571c97c5a073353ebb32"
         const val BASE_IMAGE_URL = "https://image.tmdb.org/t/p/w500"
        // https://image.tmdb.org/t/p/w500/xu1l9WmNY1XYZyJ3M2gvGqCCDGS.jpg
+        //https://api.themoviedb.org/3/genre/movie/list?api_key=40efb58f57f8571c97c5a073353ebb32&language=ru-RU
+        //https://api.themoviedb.org/3/movie/464052/credits?api_key=40efb58f57f8571c97c5a073353ebb32&language=ru-RU
     }
 
     @GET("movie/popular?&language=en-US&page=1")

@@ -13,7 +13,7 @@ import ru.suslovalex.androidacademyapp.data.DetailsResponse
 import ru.suslovalex.androidacademyapp.data.GenreResponse
 import ru.suslovalex.androidacademyapp.data.MoviesResponse
 
-object RemoteDataStore {
+class RemoteDataStore {
 
     private val movieApi: MoviesApi by lazy {
         retrofit.create(MoviesApi::class.java)
