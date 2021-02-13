@@ -2,6 +2,8 @@ package ru.suslovalex.androidacademyapp.viewmodel
 
 
 import androidx.lifecycle.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.suslovalex.androidacademyapp.data.Movie
 import ru.suslovalex.androidacademyapp.repository.MoviesRepository
@@ -46,19 +48,22 @@ class MoviesListViewModel(
         moviesRepository.deleteAllDatabase()
     }
 
-    private fun readMoviesFromDatabase() = viewModelScope.launch {
+    private fun readMoviesFromDatabase() = viewModelScope.launch(Dispatchers.IO) {
         _state.postValue(MoviesListState.Loading)
-        val movies = moviesRepository.readMoviesFromDatabase()
-        val newState = when (checker.loadMoviesList(movies)) {
-            MovieResponseResult.Success -> {
-                MoviesListState.Success(movies)
+        moviesRepository.readMoviesFromDatabase().collect {
+            val movies = moviesRepository.convertDataToMovies(it)
+            val newState = when (checker.loadMoviesList(movies)) {
+                MovieResponseResult.Success -> {
+                    MoviesListState.Success(movies)
+                }
+                MovieResponseResult.Error -> {
+                    loadUpcomingMovies()
+                    MoviesListState.Error("Loading...")
+                }
             }
-            MovieResponseResult.Error -> {
-                loadUpcomingMovies()
-                MoviesListState.Error("Loading...")
-            }
+            _state.postValue(newState)
         }
-        _state.postValue(newState)
+
     }
 
 }

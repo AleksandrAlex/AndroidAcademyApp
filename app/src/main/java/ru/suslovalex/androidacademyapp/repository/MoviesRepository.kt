@@ -2,6 +2,7 @@ package ru.suslovalex.androidacademyapp.repository
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import ru.suslovalex.androidacademyapp.data.*
 import ru.suslovalex.androidacademyapp.data.entity.ActorEntity
@@ -126,11 +127,8 @@ class MoviesRepository(
         saveActorsToDataBase(movies)
     }
 
-    suspend fun readMoviesFromDatabase(): List<Movie> {
-        val listMoviesWithActorsAndGenres = getMoviesFromDatabase()
-
-        Log.d("readFromDatabase: ", "$listMoviesWithActorsAndGenres")
-        return convertDataToMovies(listMoviesWithActorsAndGenres)
+    fun readMoviesFromDatabase(): Flow<List<MovieWithActorsAndGenres>> {
+        return moviesDao.getMovies()
     }
 
     suspend fun deleteAllDatabase() = withContext(Dispatchers.IO) {
@@ -139,7 +137,7 @@ class MoviesRepository(
         moviesDao.deleteTableActors()
     }
 
-    private fun convertDataToMovies(listMoviesWithActorsAndGenres: List<MovieWithActorsAndGenres>): List<Movie> {
+    fun convertDataToMovies(listMoviesWithActorsAndGenres: List<MovieWithActorsAndGenres>): List<Movie> {
         return listMoviesWithActorsAndGenres.map { listData ->
             Movie(
                 id = listData.movieEntity.id,
@@ -179,9 +177,9 @@ class MoviesRepository(
         }
     }
 
-    private suspend fun getMoviesFromDatabase() = withContext(Dispatchers.IO) {
-        moviesDao.getMovies()
-    }
+//    private suspend fun getMoviesFromDatabase() = withContext(Dispatchers.IO) {
+//        moviesDao.getMovies()
+//    }
 }
 
 
