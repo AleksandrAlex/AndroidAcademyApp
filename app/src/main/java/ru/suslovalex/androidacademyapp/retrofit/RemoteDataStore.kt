@@ -1,6 +1,9 @@
 package ru.suslovalex.androidacademyapp.retrofit
 
+import android.util.Log
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
@@ -8,10 +11,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import ru.suslovalex.androidacademyapp.data.ActorResponse
-import ru.suslovalex.androidacademyapp.data.DetailsResponse
-import ru.suslovalex.androidacademyapp.data.GenreResponse
-import ru.suslovalex.androidacademyapp.data.MoviesResponse
+import ru.suslovalex.androidacademyapp.data.*
 
 class RemoteDataStore {
 
@@ -38,20 +38,46 @@ class RemoteDataStore {
             .build()
     }
 
-    suspend fun getUpcomingMovies(): MoviesResponse {
-        return movieApi.getUpcomingMovies()
-    }
-
-    suspend fun getGenres(): GenreResponse {
+    private suspend fun getGenres(): GenreResponse {
         return movieApi.getGenreResponse()
     }
 
-    suspend fun getActors(movieID: Long): ActorResponse {
+    private suspend fun getActors(movieID: Long): ActorResponse {
         return movieApi.getActors(movieID)
     }
 
-    suspend fun getRuntime(movieID: Long): DetailsResponse {
+    private suspend fun getRuntime(movieID: Long): DetailsResponse {
         return movieApi.getRuntime(movieID)
+    }
+
+    suspend fun loadGenres(): List<Genre> {
+        return getGenres().genres.map {
+            Genre(
+                id = it.id,
+                name = it.name
+            )
+        }
+    }
+
+    suspend fun loadActors(movieID: Long): List<Actor> {
+        val actors = getActors(movieID).cast.map { actor ->
+            Actor(
+                id = actor.id,
+                name = actor.name,
+                actorImage = if (actor.profilePath != null) MoviesApi.BASE_IMAGE_URL + actor.profilePath else null,
+                cast_id = actor.castId
+            )
+        }
+        Log.d("Actors ", actors.toString())
+        return actors
+    }
+
+    suspend fun loadRuntime(movieID: Long): Int {
+        return getRuntime(movieID).runtime
+    }
+
+    suspend fun getUpcomingMovies(): MoviesResponse {
+        return movieApi.getUpcomingMovies()
     }
 }
 

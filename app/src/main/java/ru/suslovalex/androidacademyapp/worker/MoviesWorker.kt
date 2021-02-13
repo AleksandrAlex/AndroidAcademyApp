@@ -22,18 +22,13 @@ class MoviesWorker(
     override suspend fun doWork(): Result {
         return try {
             val movies: List<Movie> = moviesRepository.loadUpcomingMovies()
-            deleteData()
             saveData(movies)
             Result.success()
         } catch (error: Throwable) {
             Result.failure()
         }
     }
-
-    private suspend fun deleteData() {
-        moviesRepository.deleteAllDatabase()
-    }
-
+    
     private suspend fun saveData(movies: List<Movie>) {
         moviesRepository.saveDatesToDatabase(movies)
         Log.d("MoviesWorker","$movies")

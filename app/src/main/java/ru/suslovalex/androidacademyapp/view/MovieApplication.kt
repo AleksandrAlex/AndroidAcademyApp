@@ -16,6 +16,7 @@ import ru.suslovalex.androidacademyapp.viewmodel.MoviesListViewModel
 import ru.suslovalex.androidacademyapp.worker.MoviesWorker
 import java.util.concurrent.TimeUnit
 
+const val PERIODIC_INTERVAL: Long = 8
 
 class MovieApplication: Application() {
 
@@ -54,13 +55,10 @@ class MovieApplication: Application() {
             .build()
 
         val periodicWorkRequest =
-            PeriodicWorkRequest.Builder(MoviesWorker::class.java, 8, TimeUnit.HOURS)
+            PeriodicWorkRequest.Builder(MoviesWorker::class.java, PERIODIC_INTERVAL, TimeUnit.HOURS)
                 .setConstraints(constraint)
                 .build()
 
-//        val oneTimeWorkRequest = OneTimeWorkRequest.Builder(MoviesWorker::class.java).setConstraints(constraint).build()
-
         WorkManager.getInstance(applicationContext).enqueue(periodicWorkRequest)
-//        WorkManager.getInstance(applicationContext).enqueue(oneTimeWorkRequest)
     }
 }

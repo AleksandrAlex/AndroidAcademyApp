@@ -5,7 +5,12 @@ import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import ru.suslovalex.androidacademyapp.data.Actor
+import ru.suslovalex.androidacademyapp.data.Genre
 import ru.suslovalex.androidacademyapp.data.Movie
+import ru.suslovalex.androidacademyapp.data.entity.ActorEntity
+import ru.suslovalex.androidacademyapp.data.entity.GenreEntity
+import ru.suslovalex.androidacademyapp.data.entity.relation.MovieWithActorsAndGenres
 import ru.suslovalex.androidacademyapp.repository.MoviesRepository
 import ru.suslovalex.androidacademyapp.domain.MovieChecker
 import ru.suslovalex.androidacademyapp.domain.MovieResponseResult
@@ -25,7 +30,7 @@ class MoviesListViewModel(
         readMoviesFromDatabase()
     }
 
-    fun loadUpcomingMovies() = viewModelScope.launch {
+    private fun loadUpcomingMovies() = viewModelScope.launch {
         deleteAllDatabase()
         _state.postValue(MoviesListState.Loading)
         val movies = moviesRepository.loadUpcomingMovies()
@@ -48,10 +53,50 @@ class MoviesListViewModel(
         moviesRepository.deleteAllDatabase()
     }
 
+    private fun convertDataToMovies(listMoviesWithActorsAndGenres: List<MovieWithActorsAndGenres>): List<Movie> {
+        return listMoviesWithActorsAndGenres.map { listData ->
+            Movie(
+                id = listData.movieEntity.id,
+                adult = if (listData.movieEntity.adult) "16+" else "13+",
+                backdropPath = listData.movieEntity.backdropPath,
+                runtime = listData.movieEntity.runtime,
+                overview = listData.movieEntity.overview,
+                posterPath = listData.movieEntity.posterPath,
+                releaseDate = listData.movieEntity.releaseDate,
+                title = listData.movieEntity.title,
+                voteAverage = listData.movieEntity.voteAverage,
+                voteCount = listData.movieEntity.voteCount,
+                actors = convertDataToActors(listData.actors),
+                genres = convertDataToGenres(listData.genres)
+            )
+        }
+    }
+
+
+    private fun convertDataToGenres(genres: List<GenreEntity>): List<Genre> {
+        return genres.map {
+            Genre(
+                id = it.id,
+                name = it.name
+            )
+        }
+    }
+
+    private fun convertDataToActors(actors: List<ActorEntity>): List<Actor> {
+        return actors.map {
+            Actor(
+                id = it.id,
+                name = it.name,
+                actorImage = it.actorImage,
+                cast_id = it.castId
+            )
+        }
+    }
+
     private fun readMoviesFromDatabase() = viewModelScope.launch(Dispatchers.IO) {
         _state.postValue(MoviesListState.Loading)
         moviesRepository.readMoviesFromDatabase().collect {
-            val movies = moviesRepository.convertDataToMovies(it)
+            val movies = convertDataToMovies(it)
             val newState = when (checker.loadMoviesList(movies)) {
                 MovieResponseResult.Success -> {
                     MoviesListState.Success(movies)

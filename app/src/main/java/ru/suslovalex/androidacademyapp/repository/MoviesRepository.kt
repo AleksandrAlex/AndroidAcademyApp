@@ -10,7 +10,6 @@ import ru.suslovalex.androidacademyapp.data.entity.GenreEntity
 import ru.suslovalex.androidacademyapp.data.entity.MovieEntity
 import ru.suslovalex.androidacademyapp.data.entity.relation.MovieWithActorsAndGenres
 import ru.suslovalex.androidacademyapp.db.MoviesDatabase
-import ru.suslovalex.androidacademyapp.retrofit.MoviesApi.Companion.BASE_IMAGE_URL
 import ru.suslovalex.androidacademyapp.retrofit.RemoteDataStore
 
 
@@ -21,36 +20,9 @@ class MoviesRepository(
 
     private val moviesDao = moviesDataBase.moviesDao
 
-    private suspend fun loadGenres(): List<Genre> = withContext(Dispatchers.IO) {
-
-        return@withContext remoteDataStore.getGenres().genres.map {
-            Genre(
-                id = it.id,
-                name = it.name
-            )
-        }
-    }
-
-    private suspend fun loadActors(movieID: Long): List<Actor> = withContext(Dispatchers.IO) {
-        val actors = remoteDataStore.getActors(movieID).cast.map { actor ->
-            Actor(
-                id = actor.id,
-                name = actor.name,
-                actorImage = if (actor.profilePath != null) BASE_IMAGE_URL + actor.profilePath else null,
-                cast_id = actor.castId
-            )
-        }
-        Log.d("Actors ", actors.toString())
-        return@withContext actors
-    }
-
-    private suspend fun loadRuntime(movieID: Long): Int {
-        return remoteDataStore.getRuntime(movieID).runtime
-    }
-
     @Suppress("TYPE_INFERENCE_ONLY_INPUT_TYPES_WARNING")
     suspend fun loadUpcomingMovies(): List<Movie> = withContext(Dispatchers.IO) {
-        val genres = loadGenres()
+        val genres = remoteDataStore.loadGenres()
         Log.d("Genres: ", "$genres")
         val genresMap = genres.associateBy { it.id }
 
@@ -59,14 +31,14 @@ class MoviesRepository(
                 id = movie.id,
                 adult = if (movie.adult) "16+" else "13+",
                 backdropPath = movie.backdropPath,
-                runtime = loadRuntime(movieID = movie.id),
+                runtime = remoteDataStore.loadRuntime(movieID = movie.id),
                 overview = movie.overview,
                 posterPath = movie.posterPath,
                 releaseDate = movie.releaseDate,
                 title = movie.title,
                 voteAverage = movie.voteAverage,
                 voteCount = movie.voteCount,
-                actors = loadActors(movieID = movie.id),
+                actors = remoteDataStore.loadActors(movieID = movie.id),
                 genres = movie.genreIds.map {
                     genresMap[it] ?: Genre(0, "Empty genre...")
                 }
@@ -75,35 +47,54 @@ class MoviesRepository(
         return@withContext movies
     }
 
-    private suspend fun saveGenresToDatabase(movies: List<Movie>) = withContext(Dispatchers.IO) {
-        val genresEntity = movies.flatMap { movie ->
-            movie.genres.map { genre ->
-                GenreEntity(
-                    id = genre.id,
-                    name = genre.name,
-                    movieId = movie.id
-                )
-            }
-        }
-        moviesDao.insertGenres(genresEntity)
-    }
+//    private suspend fun saveGenresToDatabase(movies: List<Movie>) = withContext(Dispatchers.IO) {
+//        val genresEntity = movies.flatMap { movie ->
+//            movie.genres.map { genre ->
+//                GenreEntity(
+//                    id = genre.id,
+//                    name = genre.name,
+//                    movieId = movie.id
+//                )
+//            }
+//        }
+//        moviesDao.insertGenres(genresEntity)
+//    }
 
-    private suspend fun saveActorsToDataBase(movies: List<Movie>) = withContext(Dispatchers.IO) {
-        val actorEntity = movies.flatMap { movie ->
-            movie.actors.map { actor ->
-                ActorEntity(
-                    id = actor.id,
-                    name = actor.name,
-                    actorImage = actor.actorImage,
-                    castId = actor.cast_id,
-                    movieId = movie.id
-                )
-            }
-        }
-        moviesDao.insertActors(actorEntity)
-    }
+//    private suspend fun saveActorsToDataBase(movies: List<Movie>) = withContext(Dispatchers.IO) {
+//        val listActorEntity = movies.flatMap { movie ->
+//            movie.actors.map { actor ->
+//                ActorEntity(
+//                    id = actor.id,
+//                    name = actor.name,
+//                    actorImage = actor.actorImage,
+//                    castId = actor.cast_id,
+//                    movieId = movie.id
+//                )
+//            }
+//        }
+//        moviesDao.insertActors(listActorEntity)
+//    }
 
-    private suspend fun saveMoviesToDatabase(movies: List<Movie>) = withContext(Dispatchers.IO) {
+//    private suspend fun saveMoviesToDatabase(movies: List<Movie>) = withContext(Dispatchers.IO) {
+//        val movieEntity = movies.map { movie ->
+//            MovieEntity(
+//                id = movie.id,
+//                adult = movie.adult == "16+",
+//                backdropPath = movie.backdropPath,
+//                overview = movie.overview,
+//                posterPath = movie.posterPath,
+//                releaseDate = movie.releaseDate,
+//                title = movie.title,
+//                voteAverage = movie.voteAverage,
+//                voteCount = movie.voteCount,
+//                runtime = movie.runtime
+//            )
+//        }
+//        moviesDao.insertMovies(movieEntity)
+//    }
+
+    suspend fun saveDatesToDatabase(movies: List<Movie>) = withContext(Dispatchers.IO) {
+//        saveMoviesToDatabase(movies)
         val movieEntity = movies.map { movie ->
             MovieEntity(
                 id = movie.id,
@@ -119,12 +110,32 @@ class MoviesRepository(
             )
         }
         moviesDao.insertMovies(movieEntity)
-    }
 
-    suspend fun saveDatesToDatabase(movies: List<Movie>) = withContext(Dispatchers.IO) {
-        saveMoviesToDatabase(movies)
-        saveGenresToDatabase(movies)
-        saveActorsToDataBase(movies)
+//        saveGenresToDatabase(movies)
+        val genresEntity = movies.flatMap { movie ->
+            movie.genres.map { genre ->
+                GenreEntity(
+                    id = genre.id,
+                    name = genre.name,
+                    movieId = movie.id
+                )
+            }
+        }
+        moviesDao.insertGenres(genresEntity)
+
+//        saveActorsToDataBase(movies)
+        val listActorEntity = movies.flatMap { movie ->
+            movie.actors.map { actor ->
+                ActorEntity(
+                    id = actor.id,
+                    name = actor.name,
+                    actorImage = actor.actorImage,
+                    castId = actor.cast_id,
+                    movieId = movie.id
+                )
+            }
+        }
+        moviesDao.insertActors(listActorEntity)
     }
 
     fun readMoviesFromDatabase(): Flow<List<MovieWithActorsAndGenres>> {
@@ -137,49 +148,7 @@ class MoviesRepository(
         moviesDao.deleteTableActors()
     }
 
-    fun convertDataToMovies(listMoviesWithActorsAndGenres: List<MovieWithActorsAndGenres>): List<Movie> {
-        return listMoviesWithActorsAndGenres.map { listData ->
-            Movie(
-                id = listData.movieEntity.id,
-                adult = if (listData.movieEntity.adult) "16+" else "13+",
-                backdropPath = listData.movieEntity.backdropPath,
-                runtime = listData.movieEntity.runtime,
-                overview = listData.movieEntity.overview,
-                posterPath = listData.movieEntity.posterPath,
-                releaseDate = listData.movieEntity.releaseDate,
-                title = listData.movieEntity.title,
-                voteAverage = listData.movieEntity.voteAverage,
-                voteCount = listData.movieEntity.voteCount,
-                actors = convertDataToActors(listData.actors),
-                genres = convertDataToGenres(listData.genres)
-            )
-        }
-    }
 
-
-    private fun convertDataToGenres(genres: List<GenreEntity>): List<Genre> {
-        return genres.map {
-            Genre(
-                id = it.id,
-                name = it.name
-            )
-        }
-    }
-
-    private fun convertDataToActors(actors: List<ActorEntity>): List<Actor> {
-        return actors.map {
-            Actor(
-                id = it.id,
-                name = it.name,
-                actorImage = it.actorImage,
-                cast_id = it.castId
-            )
-        }
-    }
-
-//    private suspend fun getMoviesFromDatabase() = withContext(Dispatchers.IO) {
-//        moviesDao.getMovies()
-//    }
 }
 
 
