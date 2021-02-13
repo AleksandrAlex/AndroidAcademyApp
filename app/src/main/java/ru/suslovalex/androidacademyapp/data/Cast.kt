@@ -17,9 +17,9 @@ data class Cast(
 //    val originalName: String,
 //    val popularity: Double,
     @SerialName("profile_path")
-    val profilePath: String?
-//    @SerialName("cast_id")
-//    val castId: Int,
+    val profilePath: String?,
+    @SerialName("cast_id")
+    val castId: Long
 //    val character: String,
 //    @SerialName("credit_id")
 //    val creditId: String,

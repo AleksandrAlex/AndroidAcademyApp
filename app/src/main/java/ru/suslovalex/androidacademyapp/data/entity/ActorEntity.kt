@@ -10,5 +10,6 @@ data class ActorEntity(
     val id: Long,
     val name: String,
     val actorImage: String?,
+    val castId: Long,
     val movieId: Long
 )

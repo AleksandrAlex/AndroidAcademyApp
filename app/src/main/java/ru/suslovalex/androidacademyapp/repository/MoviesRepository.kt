@@ -8,7 +8,6 @@ import ru.suslovalex.androidacademyapp.data.entity.ActorEntity
 import ru.suslovalex.androidacademyapp.data.entity.GenreEntity
 import ru.suslovalex.androidacademyapp.data.entity.MovieEntity
 import ru.suslovalex.androidacademyapp.data.entity.relation.MovieWithActorsAndGenres
-import ru.suslovalex.androidacademyapp.db.MoviesDao
 import ru.suslovalex.androidacademyapp.db.MoviesDatabase
 import ru.suslovalex.androidacademyapp.retrofit.MoviesApi.Companion.BASE_IMAGE_URL
 import ru.suslovalex.androidacademyapp.retrofit.RemoteDataStore
@@ -21,7 +20,7 @@ class MoviesRepository(
 
     private val moviesDao = moviesDataBase.moviesDao
 
-    suspend fun loadGenres(): List<Genre> = withContext(Dispatchers.IO) {
+    private suspend fun loadGenres(): List<Genre> = withContext(Dispatchers.IO) {
 
         return@withContext remoteDataStore.getGenres().genres.map {
             Genre(
@@ -36,7 +35,8 @@ class MoviesRepository(
             Actor(
                 id = actor.id,
                 name = actor.name,
-                actorImage = if (actor.profilePath != null) BASE_IMAGE_URL + actor.profilePath else null
+                actorImage = if (actor.profilePath != null) BASE_IMAGE_URL + actor.profilePath else null,
+                cast_id = actor.castId
             )
         }
         Log.d("Actors ", actors.toString())
@@ -94,6 +94,7 @@ class MoviesRepository(
                     id = actor.id,
                     name = actor.name,
                     actorImage = actor.actorImage,
+                    castId = actor.cast_id,
                     movieId = movie.id
                 )
             }
@@ -127,6 +128,7 @@ class MoviesRepository(
 
     suspend fun readMoviesFromDatabase(): List<Movie> {
         val listMoviesWithActorsAndGenres = getMoviesFromDatabase()
+
         Log.d("readFromDatabase: ", "$listMoviesWithActorsAndGenres")
         return convertDataToMovies(listMoviesWithActorsAndGenres)
     }
@@ -156,6 +158,7 @@ class MoviesRepository(
         }
     }
 
+
     private fun convertDataToGenres(genres: List<GenreEntity>): List<Genre> {
         return genres.map {
             Genre(
@@ -170,7 +173,8 @@ class MoviesRepository(
             Actor(
                 id = it.id,
                 name = it.name,
-                actorImage = it.actorImage
+                actorImage = it.actorImage,
+                cast_id = it.castId
             )
         }
     }

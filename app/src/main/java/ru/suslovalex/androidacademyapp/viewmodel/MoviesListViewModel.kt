@@ -1,5 +1,6 @@
 package ru.suslovalex.androidacademyapp.viewmodel
 
+
 import androidx.lifecycle.*
 import kotlinx.coroutines.launch
 import ru.suslovalex.androidacademyapp.data.Movie
@@ -7,10 +8,12 @@ import ru.suslovalex.androidacademyapp.repository.MoviesRepository
 import ru.suslovalex.androidacademyapp.domain.MovieChecker
 import ru.suslovalex.androidacademyapp.domain.MovieResponseResult
 
+
 class MoviesListViewModel(
     private val checker: MovieChecker,
     private val moviesRepository: MoviesRepository
 ) : ViewModel() {
+
 
     private val _state = MutableLiveData<MoviesListState>()
     val moviesListState: LiveData<MoviesListState>
@@ -18,11 +21,9 @@ class MoviesListViewModel(
 
     init {
         readMoviesFromDatabase()
-//        loadUpcomingMovies()
     }
 
-     fun loadUpcomingMovies() = viewModelScope.launch {
-//        readMoviesFromDatabase()
+    fun loadUpcomingMovies() = viewModelScope.launch {
         deleteAllDatabase()
         _state.postValue(MoviesListState.Loading)
         val movies = moviesRepository.loadUpcomingMovies()
@@ -54,11 +55,12 @@ class MoviesListViewModel(
             }
             MovieResponseResult.Error -> {
                 loadUpcomingMovies()
-                MoviesListState.Error("Error!")
+                MoviesListState.Error("Loading...")
             }
         }
         _state.postValue(newState)
     }
+
 }
 
 sealed class MoviesListState {

@@ -59,7 +59,7 @@ class FragmentMoviesDetails : Fragment() {
     }
 
     private fun updateActorRecyclerView(actors: List<Actor>) {
-        adapterActors.submitList(actors)
+        adapterActors.submitList(actors.sortedBy { it.cast_id })
     }
 
     private fun setupUI(view: View, currentMovie: Movie) {
