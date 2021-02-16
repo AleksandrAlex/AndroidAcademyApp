@@ -42,11 +42,11 @@ class RemoteDataStore {
         return movieApi.getGenreResponse()
     }
 
-    private suspend fun getActors(movieID: Long): ActorResponse {
+    suspend fun getActors(movieID: Long): ActorResponse {
         return movieApi.getActors(movieID)
     }
 
-    private suspend fun getRuntime(movieID: Long): DetailsResponse {
+    suspend fun getRuntime(movieID: Long): DetailsResponse {
         return movieApi.getRuntime(movieID)
     }
 
@@ -57,23 +57,6 @@ class RemoteDataStore {
                 name = it.name
             )
         }
-    }
-
-    suspend fun loadActors(movieID: Long): List<Actor> {
-        val actors = getActors(movieID).cast.map { actor ->
-            Actor(
-                id = actor.id,
-                name = actor.name,
-                actorImage = if (actor.profilePath != null) MoviesApi.BASE_IMAGE_URL + actor.profilePath else null,
-                cast_id = actor.castId
-            )
-        }
-        Log.d("Actors ", actors.toString())
-        return actors
-    }
-
-    suspend fun loadRuntime(movieID: Long): Int {
-        return getRuntime(movieID).runtime
     }
 
     suspend fun getUpcomingMovies(): MoviesResponse {

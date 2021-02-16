@@ -10,6 +10,7 @@ import ru.suslovalex.androidacademyapp.data.entity.GenreEntity
 import ru.suslovalex.androidacademyapp.data.entity.MovieEntity
 import ru.suslovalex.androidacademyapp.data.entity.relation.MovieWithActorsAndGenres
 import ru.suslovalex.androidacademyapp.db.MoviesDatabase
+import ru.suslovalex.androidacademyapp.retrofit.MoviesApi
 import ru.suslovalex.androidacademyapp.retrofit.RemoteDataStore
 
 
@@ -31,14 +32,21 @@ class MoviesRepository(
                 id = movie.id,
                 adult = if (movie.adult) "16+" else "13+",
                 backdropPath = movie.backdropPath,
-                runtime = remoteDataStore.loadRuntime(movieID = movie.id),
+                runtime = remoteDataStore.getRuntime(movieID = movie.id).runtime,
                 overview = movie.overview,
                 posterPath = movie.posterPath,
                 releaseDate = movie.releaseDate,
                 title = movie.title,
                 voteAverage = movie.voteAverage,
                 voteCount = movie.voteCount,
-                actors = remoteDataStore.loadActors(movieID = movie.id),
+                actors = remoteDataStore.getActors(movieID = movie.id).cast.map { actor ->
+                    Actor(
+                        id = actor.id,
+                        name = actor.name,
+                        actorImage = if (actor.profilePath != null) MoviesApi.BASE_IMAGE_URL + actor.profilePath else null,
+                        cast_id = actor.castId
+                    )
+                },
                 genres = movie.genreIds.map {
                     genresMap[it] ?: Genre(0, "Empty genre...")
                 }
@@ -47,54 +55,8 @@ class MoviesRepository(
         return@withContext movies
     }
 
-//    private suspend fun saveGenresToDatabase(movies: List<Movie>) = withContext(Dispatchers.IO) {
-//        val genresEntity = movies.flatMap { movie ->
-//            movie.genres.map { genre ->
-//                GenreEntity(
-//                    id = genre.id,
-//                    name = genre.name,
-//                    movieId = movie.id
-//                )
-//            }
-//        }
-//        moviesDao.insertGenres(genresEntity)
-//    }
-
-//    private suspend fun saveActorsToDataBase(movies: List<Movie>) = withContext(Dispatchers.IO) {
-//        val listActorEntity = movies.flatMap { movie ->
-//            movie.actors.map { actor ->
-//                ActorEntity(
-//                    id = actor.id,
-//                    name = actor.name,
-//                    actorImage = actor.actorImage,
-//                    castId = actor.cast_id,
-//                    movieId = movie.id
-//                )
-//            }
-//        }
-//        moviesDao.insertActors(listActorEntity)
-//    }
-
-//    private suspend fun saveMoviesToDatabase(movies: List<Movie>) = withContext(Dispatchers.IO) {
-//        val movieEntity = movies.map { movie ->
-//            MovieEntity(
-//                id = movie.id,
-//                adult = movie.adult == "16+",
-//                backdropPath = movie.backdropPath,
-//                overview = movie.overview,
-//                posterPath = movie.posterPath,
-//                releaseDate = movie.releaseDate,
-//                title = movie.title,
-//                voteAverage = movie.voteAverage,
-//                voteCount = movie.voteCount,
-//                runtime = movie.runtime
-//            )
-//        }
-//        moviesDao.insertMovies(movieEntity)
-//    }
 
     suspend fun saveDatesToDatabase(movies: List<Movie>) = withContext(Dispatchers.IO) {
-//        saveMoviesToDatabase(movies)
         val movieEntity = movies.map { movie ->
             MovieEntity(
                 id = movie.id,
@@ -111,7 +73,6 @@ class MoviesRepository(
         }
         moviesDao.insertMovies(movieEntity)
 
-//        saveGenresToDatabase(movies)
         val genresEntity = movies.flatMap { movie ->
             movie.genres.map { genre ->
                 GenreEntity(
@@ -123,7 +84,6 @@ class MoviesRepository(
         }
         moviesDao.insertGenres(genresEntity)
 
-//        saveActorsToDataBase(movies)
         val listActorEntity = movies.flatMap { movie ->
             movie.actors.map { actor ->
                 ActorEntity(
