@@ -1,6 +1,7 @@
 package ru.suslovalex.androidacademyapp.db
 
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 import ru.suslovalex.androidacademyapp.data.entity.ActorEntity
 import ru.suslovalex.androidacademyapp.data.entity.GenreEntity
 import ru.suslovalex.androidacademyapp.data.entity.MovieEntity
@@ -18,8 +19,8 @@ interface MoviesDao {
     suspend fun insertGenres(movies: List<GenreEntity>)
 
     @Transaction
-    @Query("SELECT * FROM table_movies")
-    suspend fun getMovies(): List<MovieWithActorsAndGenres>
+    @Query("SELECT * FROM table_movies ORDER by releaseDate ASC")
+    fun getMovies(): Flow<List<MovieWithActorsAndGenres>>
 
     @Query("DELETE FROM table_movies")
     suspend fun deleteTableMovies()

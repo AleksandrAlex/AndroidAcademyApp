@@ -31,7 +31,7 @@ interface MoviesApi {
     @GET("genre/movie/list?&language=ru-RU")
     suspend fun getGenreResponse(): GenreResponse
 
-    @GET("movie/{movie_id}/credits?&language=ru-RU")
+    @GET("movie/{movie_id}/credits?&language=en-EN")
     suspend fun getActors(@Path("movie_id") movieID: Long): ActorResponse
 
     @GET("movie/{movie_id}?&language=en-US")
