@@ -31,7 +31,7 @@ class MovieApplication: Application() {
         }
 
         val movieDetailModule = module {
-            viewModel { MoviesDetailsViewModel(get()) }
+            viewModel { MoviesDetailsViewModel(get(), get()) }
         }
 
         val appModule = module {
@@ -59,6 +59,10 @@ class MovieApplication: Application() {
                 .setConstraints(constraint)
                 .build()
 
+//        val oneTimeWorkRequest = OneTimeWorkRequest.Builder(MoviesWorker::class.java).setConstraints(constraint).build()
+
         WorkManager.getInstance(applicationContext).enqueue(periodicWorkRequest)
+
+//        WorkManager.getInstance(applicationContext).enqueue(oneTimeWorkRequest)
     }
 }

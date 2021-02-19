@@ -1,0 +1,3 @@
+
+To test adb ->
+adb shell am start -W -a android.intent.action.VIEW -d "ru.suslovalex.androidacademyapp://movieapp/602269"
