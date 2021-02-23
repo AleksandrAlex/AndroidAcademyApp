@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
                .replace(R.id.container_layout, FragmentMoviesDetails.newInstance(id))
                .addToBackStack(null)
                .commit()
-        Toast.makeText(applicationContext, "$id", Toast.LENGTH_LONG).show()
     }
 
     override fun onNewIntent(intent: Intent?) {

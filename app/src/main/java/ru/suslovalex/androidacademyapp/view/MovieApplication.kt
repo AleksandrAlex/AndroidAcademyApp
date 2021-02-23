@@ -55,7 +55,7 @@ class MovieApplication: Application() {
             .build()
 
         val periodicWorkRequest =
-            PeriodicWorkRequest.Builder(MoviesWorker::class.java, PERIODIC_INTERVAL, TimeUnit.HOURS)
+            PeriodicWorkRequest.Builder(MoviesWorker::class.java, 15, TimeUnit.MINUTES)
                 .setConstraints(constraint)
                 .build()
 
