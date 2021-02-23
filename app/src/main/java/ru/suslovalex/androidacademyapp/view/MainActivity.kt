@@ -28,9 +28,7 @@ class MainActivity : AppCompatActivity() {
         when (intent.action) {
             Intent.ACTION_VIEW -> {
                 val id = intent.data?.lastPathSegment?.toLongOrNull()
-                if (id != null) {
-                    openFragmentMovieDetails(id)
-                }
+                id?.let { openFragmentMovieDetails(it) }
             }
         }
     }
@@ -45,8 +43,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        if (intent!=null){
-            handleIntent(intent)
-        }
+        intent?.let { handleIntent(it) }
     }
 }

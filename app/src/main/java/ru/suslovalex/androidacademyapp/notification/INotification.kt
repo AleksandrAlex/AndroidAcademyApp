@@ -9,6 +9,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
@@ -62,10 +63,9 @@ class MovieNotification(private val context: Context): INotification{
             .setContentText((movie.genres.map { it.name }.joinToString { it }))
             .setSmallIcon(R.drawable.ic_notification_movie)
             .setWhen(System.currentTimeMillis())
-//            .setLargeIcon(bitmap)
-//            .setStyle(NotificationCompat.BigTextStyle().bigText(movie.overview))
             .setStyle(NotificationCompat.BigPictureStyle().bigPicture(bitmap))
             .setAutoCancel(true)
+            .setPriority(NotificationManagerCompat.IMPORTANCE_HIGH)
             .setContentIntent(
                 PendingIntent.getActivity(
                     context,
@@ -82,7 +82,7 @@ class MovieNotification(private val context: Context): INotification{
         Log.d("NOTIFICATION", "${movie.id}")
     }
 
-    fun getBitmapFromURL(movie: Movie?): Bitmap? {
+    private fun getBitmapFromURL(movie: Movie?): Bitmap? {
         return try {
             val url = URL(BASE_IMAGE_URL+movie?.posterPath)
             val connection: HttpURLConnection = url.openConnection() as HttpURLConnection

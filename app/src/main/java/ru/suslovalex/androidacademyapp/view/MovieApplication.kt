@@ -55,14 +55,10 @@ class MovieApplication: Application() {
             .build()
 
         val periodicWorkRequest =
-            PeriodicWorkRequest.Builder(MoviesWorker::class.java, 15, TimeUnit.MINUTES)
+            PeriodicWorkRequest.Builder(MoviesWorker::class.java, PERIODIC_INTERVAL, TimeUnit.HOURS)
                 .setConstraints(constraint)
                 .build()
 
-//        val oneTimeWorkRequest = OneTimeWorkRequest.Builder(MoviesWorker::class.java).setConstraints(constraint).build()
-
         WorkManager.getInstance(applicationContext).enqueue(periodicWorkRequest)
-
-//        WorkManager.getInstance(applicationContext).enqueue(oneTimeWorkRequest)
     }
 }
