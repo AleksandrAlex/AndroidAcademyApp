@@ -133,9 +133,9 @@ class FragmentMoviesDetails : Fragment() {
     }
 
     companion object {
-        fun newInstance(movie: Movie): FragmentMoviesDetails {
+        fun newInstance(movieId: Long): FragmentMoviesDetails {
             val args = Bundle()
-            args.putParcelable("movie", movie)
+            args.putLong("movie", movieId)
             val fragment = FragmentMoviesDetails()
             fragment.arguments = args
             return fragment

@@ -31,7 +31,7 @@ class MovieApplication: Application() {
         }
 
         val movieDetailModule = module {
-            viewModel { MoviesDetailsViewModel(get()) }
+            viewModel { MoviesDetailsViewModel(get(), get()) }
         }
 
         val appModule = module {

@@ -108,6 +108,10 @@ class MoviesRepository(
         moviesDao.deleteTableActors()
     }
 
+suspend fun readMovieDetailFromDatabase(id: Long): MovieWithActorsAndGenres = withContext(Dispatchers.IO){
+    return@withContext moviesDao.getMovie(id)
+}
+
 
 }
 

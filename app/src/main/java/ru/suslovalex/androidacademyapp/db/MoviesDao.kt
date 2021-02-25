@@ -22,6 +22,10 @@ interface MoviesDao {
     @Query("SELECT * FROM table_movies ORDER by releaseDate ASC")
     fun getMovies(): Flow<List<MovieWithActorsAndGenres>>
 
+    @Transaction
+    @Query("SELECT * FROM table_movies WHERE id = :id")
+    suspend fun getMovie(id: Long): MovieWithActorsAndGenres
+
     @Query("DELETE FROM table_movies")
     suspend fun deleteTableMovies()
 

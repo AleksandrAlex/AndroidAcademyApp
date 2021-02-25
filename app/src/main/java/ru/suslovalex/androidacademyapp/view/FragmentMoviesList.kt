@@ -77,7 +77,7 @@ class FragmentMoviesList : Fragment() {
 //        moviesListViewModel.loadUpcomingMovies()
         activity?.let {
             it.supportFragmentManager.beginTransaction()
-                .replace(R.id.container_layout, FragmentMoviesDetails.newInstance(movie))
+                .replace(R.id.container_layout, FragmentMoviesDetails.newInstance(movie.id))
                 .addToBackStack(null)
                 .commit()
         }
