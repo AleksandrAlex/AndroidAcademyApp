@@ -1,5 +1,6 @@
 package ru.suslovalex.androidacademyapp.view
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -63,9 +64,10 @@ class FragmentMoviesList : Fragment() {
         progress_bar.visibility = View.VISIBLE
     }
 
+    @Suppress("NAME_SHADOWING")
     private fun setupUI(view: View, movies: List<Movie>) {
         val recycler: RecyclerView = view.findViewById(R.id.rv_moviesList)
-        adapterMovies = AdapterMovies { movie -> doOnClick(movie) }
+        adapterMovies = AdapterMovies { movie, view -> doOnClick(movie, view) }
         recycler.layoutManager = GridLayoutManager(view.context, 2)
         recycler.adapter = adapterMovies
         adapterMovies.submitList(movies)
@@ -73,10 +75,11 @@ class FragmentMoviesList : Fragment() {
             RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
     }
 
-    private fun doOnClick(movie: Movie) {
-//        moviesListViewModel.loadUpcomingMovies()
+    @SuppressLint("ResourceType")
+    private fun doOnClick(movie: Movie, view: View) {
         activity?.let {
             it.supportFragmentManager.beginTransaction()
+                .addSharedElement(view, getString(R.string.transition))
                 .replace(R.id.container_layout, FragmentMoviesDetails.newInstance(movie.id))
                 .addToBackStack(null)
                 .commit()

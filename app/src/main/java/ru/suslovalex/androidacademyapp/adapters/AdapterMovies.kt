@@ -16,7 +16,7 @@ import ru.suslovalex.androidacademyapp.data.Movie
 import ru.suslovalex.androidacademyapp.retrofit.MoviesApi.Companion.BASE_IMAGE_URL
 
 
-class AdapterMovies(private val adapterOnClick: (Movie) -> Unit) :
+class AdapterMovies(private val adapterOnClick: (Movie, View) -> Unit) :
     ListAdapter<Movie, MovieViewHolder>(MovieDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
@@ -28,7 +28,7 @@ class AdapterMovies(private val adapterOnClick: (Movie) -> Unit) :
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
         holder.bind(getItem(position))
         holder.itemView.setOnClickListener {
-            adapterOnClick(getItem(position))
+            adapterOnClick(getItem(position), it)
         }
     }
 }
@@ -44,8 +44,9 @@ class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val timeLimit: TextView = itemView.findViewById(R.id.time_limit)
 
     fun bind(movie: Movie) {
+        itemView.transitionName = (R.string.transition+position).toString()
         val endImagePath = movie.posterPath
-        val path = BASE_IMAGE_URL+endImagePath
+        val path = BASE_IMAGE_URL + endImagePath
 
         Glide.with(itemView.context).load(path).into(image)
         adult.text = getAgeForLabel(movie)
@@ -78,9 +79,9 @@ class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     }
 }
 
-class MovieDiffUtil: DiffUtil.ItemCallback<Movie>(){
+class MovieDiffUtil : DiffUtil.ItemCallback<Movie>() {
     override fun areItemsTheSame(oldItem: Movie, newItem: Movie): Boolean {
-       return oldItem.id == newItem.id
+        return oldItem.id == newItem.id
     }
 
     override fun areContentsTheSame(oldItem: Movie, newItem: Movie): Boolean {

@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.android.material.transition.MaterialContainerTransform
 import kotlinx.android.synthetic.main.fragment_movies_details.*
 import org.koin.android.viewmodel.ext.android.viewModel
 import ru.suslovalex.androidacademyapp.R
@@ -26,6 +27,18 @@ class FragmentMoviesDetails : Fragment() {
 
     private lateinit var adapterActors: AdapterActors
     private val moviesDetailsViewModel: MoviesDetailsViewModel by viewModel()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        doAnimation()
+    }
+
+    private fun doAnimation() {
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            drawingViewId = R.id.container_layout
+            duration = 1000L
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
