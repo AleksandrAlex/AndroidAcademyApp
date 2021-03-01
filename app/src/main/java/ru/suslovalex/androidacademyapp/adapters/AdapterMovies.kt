@@ -1,6 +1,7 @@
 package ru.suslovalex.androidacademyapp.adapters
 
 
+import android.provider.Settings.Global.getString
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,7 +45,9 @@ class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val timeLimit: TextView = itemView.findViewById(R.id.time_limit)
 
     fun bind(movie: Movie) {
-        itemView.transitionName = (R.string.transition+position).toString()
+        val name = itemView.context.resources.getString(R.string.transition)
+        itemView.transitionName = name+position
+
         val endImagePath = movie.posterPath
         val path = BASE_IMAGE_URL + endImagePath
 

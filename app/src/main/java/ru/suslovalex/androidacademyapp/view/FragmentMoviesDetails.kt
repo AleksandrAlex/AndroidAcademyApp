@@ -22,6 +22,8 @@ import ru.suslovalex.androidacademyapp.data.Movie
 import ru.suslovalex.androidacademyapp.retrofit.MoviesApi.Companion.BASE_IMAGE_URL
 import ru.suslovalex.androidacademyapp.viewmodel.*
 
+const val DURATION = 600L
+
 
 class FragmentMoviesDetails : Fragment() {
 
@@ -36,7 +38,7 @@ class FragmentMoviesDetails : Fragment() {
     private fun doAnimation() {
         sharedElementEnterTransition = MaterialContainerTransform().apply {
             drawingViewId = R.id.container_layout
-            duration = 1000L
+            duration = DURATION
         }
     }
 
